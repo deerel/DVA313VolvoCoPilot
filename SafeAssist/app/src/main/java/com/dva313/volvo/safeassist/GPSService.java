@@ -63,8 +63,8 @@ public class GPSService extends Service {
 //            sendMessage(String.valueOf(dist));
             // Stor testing
 
-            Toast.makeText(getApplicationContext(), "onLocationChanged: " + location.getLatitude(), Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "onLocationChanged: " + location);
+            //Toast.makeText(getApplicationContext(), "onLocationChanged: " + location.getLatitude(), Toast.LENGTH_SHORT).show();
+            //Log.i(TAG, "onLocationChanged: " + location);
             mLastLocation.set(location);
 
             Log.i("UPDATE URL", url);
@@ -89,7 +89,6 @@ public class GPSService extends Service {
                 public void onErrorResponse(VolleyError error) {
                     //error.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
-                    Log.e("UPDATE", error.getMessage());
                 }
             }
             ) {

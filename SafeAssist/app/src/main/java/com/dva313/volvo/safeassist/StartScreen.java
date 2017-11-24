@@ -7,7 +7,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +22,7 @@ import java.util.Date;
 
 public class StartScreen extends AppCompatActivity {
     public TextView good_day_message, status, mDistance;
+    public String mAlertLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,17 +32,18 @@ public class StartScreen extends AppCompatActivity {
         good_day_message = (TextView)findViewById(R.id.good_day_message_TW);
         status = (TextView)findViewById(R.id.status_TW);
         mDistance = (TextView)findViewById(R.id.textDistance);
-        mDistance.setText("0.0m");
+        mDistance.setText("");
+        mAlertLevel = "0";
         //get the logged in users data
         SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
         String firstname = preferences.getString("first_name", null);
         String lastname = preferences.getString("last_name", null);
 
-        status.setText("OK");
-        status.setBackgroundColor(Color.parseColor("#0FFF07"));
-        good_day_message.setText("Good day "+firstname+" "+lastname);
+        //status.setText("OK");
+        //status.setBackgroundColor(Color.parseColor("#0FFF07"));
+        setStatus();
+        good_day_message.setText("Logged in as "+firstname+" "+lastname);
 
-        //Toast.makeText(getApplicationContext(), "shit", Toast.LENGTH_SHORT).show();
         startService(new Intent(this, GPSService.class));
     }
 
@@ -54,6 +58,33 @@ public class StartScreen extends AppCompatActivity {
         Intent intent = new Intent(StartScreen.this, FirstPage.class);
         startActivity(intent);
         finish();
+    }
+
+    private void setStatus() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        status.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorDarkText, null));
+
+        switch (mAlertLevel) {
+            case "0" :
+                status.setText("Not inside a working area.");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                break;
+            case "1" :
+                v.vibrate(100);
+                status.setText("Caution!\nYou are inside a working area.");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                break;
+            case "2" :
+                v.vibrate(1000);
+                status.setText("Alert!\nLook out for vehicles!");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                break;
+            default:
+                v.vibrate(100);
+                status.setText("Caution!\nSystem cannot detect your position.");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                break;
+        }
     }
 
     @Override
@@ -83,8 +114,10 @@ public class StartScreen extends AppCompatActivity {
             // Get extra data included in the Intent
             String message = intent.getStringExtra("message");
             Log.d("receiver", "Got message: " + message);
-
-            mDistance.setText(message);
+            mAlertLevel = message.split(",")[0];
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            setStatus();
+            mDistance.setText(message.split(",")[1]);
         }
     };
 

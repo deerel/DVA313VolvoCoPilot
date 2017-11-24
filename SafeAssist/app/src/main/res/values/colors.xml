@@ -5,7 +5,8 @@
     <color name="colorAccent">#FFF06B</color>
     <color name="colorBackground">#080F0F</color>
     <color name="colorMainText">#EEF2F1</color>
-    <color name="colorGreen">#65E863</color>
-    <color name="colorYellow">#F2EA60</color>
-    <color name="colorRed">#A52422</color>
+    <color name="colorDarkText">#080F0F</color>
+    <color name="colorAlert0">#65E863</color>
+    <color name="colorAlert1">#F2EA60</color>
+    <color name="colorAlert2">#A52422</color>
 </resources>
