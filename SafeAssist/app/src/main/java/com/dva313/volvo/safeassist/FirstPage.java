@@ -89,8 +89,8 @@ public class FirstPage extends AppCompatActivity {
                         SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
                         editor.putString("first_name", firstname);
                         editor.putString("last_name", lastname);
-                        editor.putString("user_id", user_id);
-                        editor.putString("vehicle_id", vehicle_id);
+                        editor.putString("mUserId", user_id);
+                        editor.putString("mVehicleId", vehicle_id);
                         editor.putBoolean("is_inlogged", true);
                         editor.apply();
 
@@ -118,7 +118,7 @@ public class FirstPage extends AppCompatActivity {
                     Map<String, String>  params = new HashMap<>();
                     // the POST parameters:
                     params.put("worker_id", user_id);
-                    params.put("vehicle_id", vehicle_id);
+                    params.put("mVehicleId", vehicle_id);
                     params.put("key", key);
                     return params;
                 }

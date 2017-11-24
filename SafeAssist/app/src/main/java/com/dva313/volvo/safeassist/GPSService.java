@@ -14,8 +14,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -35,7 +33,10 @@ public class GPSService extends Service {
     private double mLatitude, mLongitude;
     //path to the php file
     String url = "http://volvo.xdo.se/test_gps/update_gps_location.php";
+    String mAlertUrl = "http://volvo.xdo.se/test_gps/get_alert.php";
     //verification key for the php file
+
+    final String mAlertKey = "pu4gl3y1";
     final String key = "iu5gli54";
     String user_id, vehicle_id;
 
@@ -54,16 +55,25 @@ public class GPSService extends Service {
         public void onLocationChanged(final Location location) {
             mLatitude = location.getLatitude();
             mLongitude = location.getLongitude();
-            distance();
+
+            // For testing
+//            double lat2 = 59.632856;
+//            double lon2 = 16.565902;
+//            double dist = distance(mLatitude, lat2, mLongitude, lon2, 0.0, 0.0);
+//            sendMessage(String.valueOf(dist));
+            // Stor testing
+
             Toast.makeText(getApplicationContext(), "onLocationChanged: " + location.getLatitude(), Toast.LENGTH_SHORT).show();
             Log.i(TAG, "onLocationChanged: " + location);
             mLastLocation.set(location);
 
+            Log.i("UPDATE URL", url);
             //sending in the request to php as a POST
             StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
 
                 @Override//the response from php is received here
                 public void onResponse(String response) {
+                    getAlert();
                     Log.i("RESPONSE", "GOT RESPONSE");
                     Log.i("RESPONSE", response.toString());
                     //if the worker was inserted newly or it already existed in the DB
@@ -79,6 +89,7 @@ public class GPSService extends Service {
                 public void onErrorResponse(VolleyError error) {
                     //error.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+                    Log.e("UPDATE", error.getMessage());
                 }
             }
             ) {
@@ -193,27 +204,35 @@ public class GPSService extends Service {
         }
     }
 
-    private void distance() {
-        Log.i("GPS", "In distance");
-        double lat0 = 59.63122;
-        double lon0 = 16.56601;
-//        function distance(lat1, lon1, lat2, lon2) {
-//            var p = 0.017453292519943295;    // Math.PI / 180
-//            var c = Math.cos;
-//            var a = 0.5 - c((lat2 - lat1) * p)/2 +
-//                    c(lat1 * p) * c(lat2 * p) *
-//                            (1 - c((lon2 - lon1) * p))/2;
-//
-//            return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
-//        }
-        double p = 0.017453292519943295;
-        double a = 0.5 - Math.cos((mLatitude - lat0) * p) / 2 +
-                Math.cos(lat0 * p) * Math.cos(mLatitude * p) *
-                        (1 - Math.cos((mLongitude - lon0) * p)) / 2;
 
-        a =  12742 * Math.asin(Math.sqrt(a));
+    // https://stackoverflow.com/questions/3694380/calculating-distance-between-two-points-using-latitude-longitude-what-am-i-doi
+    /**
+     * Calculate distance between two points in latitude and longitude taking
+     * into account height difference. If you are not interested in height
+     * difference pass 0.0. Uses Haversine method as its base.
+     *
+     * lat1, lon1 Start point lat2, lon2 End point el1 Start altitude in meters
+     * el2 End altitude in meters
+     * @returns Distance in Meters
+     */
+    public static double distance(double lat1, double lat2, double lon1,
+                                  double lon2, double el1, double el2) {
 
-        sendMessage(String.valueOf(a));
+        final double R = 6371.392896;
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+
+        double height = el1 - el2;
+
+        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+
+        return Math.sqrt(distance);
 
     }
 
@@ -228,4 +247,48 @@ public class GPSService extends Service {
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
+    private void getAlert() {
+
+        //sending in the request to php as a POST
+        StringRequest postRequest = new StringRequest(Request.Method.POST, mAlertUrl, new Response.Listener<String>() {
+
+            @Override//the response from php is received here
+            public void onResponse(String response) {
+                Log.i("GET ALERT", "GOT RESPONSE");
+                Log.i("GET ALERT", response.toString());
+                Log.i("CURRENT USER", user_id);
+                sendMessage(response.toString());
+                //if the worker was inserted newly or it already existed in the DB
+//                if (!response.contains("Inserting gps location successful")) {
+//                    Toast.makeText(getApplicationContext(), "Could not update the location to the Database", Toast.LENGTH_SHORT).show();
+//
+//
+//                    Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+//                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //error.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Could not get alert information.", Toast.LENGTH_LONG).show();
+            }
+        }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                // the POST parameters:
+                params.put("worker_id", user_id);
+                params.put("vehicle_id", vehicle_id);
+                //maybe not that good to convert the double values to string and reconvert them in the php, but for now it works
+                params.put("lat", String.valueOf(mLatitude));
+                params.put("lon", String.valueOf(mLongitude));
+                params.put("key", mAlertKey);
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getApplicationContext()).add(postRequest);
+
+    }
 }
