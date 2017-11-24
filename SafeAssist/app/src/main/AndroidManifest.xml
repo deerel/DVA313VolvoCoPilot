@@ -22,7 +22,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".StartScreen" />
+        <!--
+        Removed process.
+        original:
         <service android:name=".GPSService" android:process=":my_service" />
+        -->
+        <service android:name=".GPSService" />
     </application>
 
 </manifest>

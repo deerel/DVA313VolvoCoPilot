@@ -194,6 +194,7 @@ public class GPSService extends Service {
     }
 
     private void distance() {
+        Log.i("GPS", "In distance");
         double lat0 = 59.63122;
         double lon0 = 16.56601;
 //        function distance(lat1, lon1, lat2, lon2) {
@@ -212,13 +213,19 @@ public class GPSService extends Service {
 
         a =  12742 * Math.asin(Math.sqrt(a));
 
-//        Intent intent = new Intent("GPSLocationUpdates");
-//        intent.putExtra("Status", String.valueOf(a));
-//
-//        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(StartScreen.mBroadcastGpsAction);
-        broadcastIntent.putExtra("Data", String.valueOf(a));
-        sendBroadcast(broadcastIntent);
+        sendMessage(String.valueOf(a));
+
     }
+
+    // Send an Intent with an action named "custom-event-name". The Intent
+    // sent should
+    // be received by the ReceiverActivity.
+    private void sendMessage(String message) {
+        Log.d("sender", "Broadcasting message");
+        Intent intent = new Intent("gps-distance");
+        // You can also include some extra data.
+        intent.putExtra("message", message);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
 }
