@@ -7,9 +7,7 @@ package com.dva313.volvo.safeassist;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.media.RatingCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
@@ -21,14 +19,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class FirstPage extends AppCompatActivity {
-    EditText firstname_et, lastname_et, vehicle_id_et, birthday_year_et, birthday_month_et, birthday_day_et;
+    EditText mUsername, mPassword;
 
 
     @Override
@@ -48,32 +43,26 @@ public class FirstPage extends AppCompatActivity {
         }
 
         //get each edittext component to later save the text string inside them into vars
-        firstname_et = (EditText)findViewById(R.id.firstname_ET);
-        lastname_et = (EditText)findViewById(R.id.lastname_ET);
-        vehicle_id_et = (EditText)findViewById(R.id.vehicle_id_ET);
-        birthday_year_et = (EditText)findViewById(R.id.birthday_year_ET);
-        birthday_month_et = (EditText)findViewById(R.id.birthday_month_ET);
-        birthday_day_et = (EditText)findViewById(R.id.birthday_day_ET);
+        mUsername = (EditText)findViewById(R.id.editTextUsername);
+        mPassword = (EditText)findViewById(R.id.editTextPassword);
+
+
     }
 
     public void submit_user_result(View v){
 
         //get the edittext/field data a string
-        final String firstname = firstname_et.getText().toString();
-        final String lastname = lastname_et.getText().toString();
-        final String vehicle_id = vehicle_id_et.getText().toString();
-        String birth_year = birthday_year_et.getText().toString();
-        String birth_month = birthday_month_et.getText().toString();
-        String birth_day = birthday_day_et.getText().toString();
+        final String username = mUsername.getText().toString();
+        final String password = mPassword.getText().toString();
 
-        if(firstname.isEmpty() || lastname.isEmpty() || vehicle_id.isEmpty() || birth_day.isEmpty() || birth_month.isEmpty() || birth_year.isEmpty()){
+        if(username.isEmpty() || password.isEmpty()){
             Toast.makeText(getApplicationContext(), "One or more field are empty.", Toast.LENGTH_SHORT).show();
         }else{
-            //set the firstname, lastname and birthday as the unique identifier. a better way is to save personal number if we are allowed to do it
-            final String user_id = firstname+"_"+lastname+"-"+birth_year+"/"+birth_month+"/"+birth_day;
+
+            final String user_id = username+"_"+password;
 
             //path to the php file
-            String url = "http://volvo.xdo.se/test_gps/insert_worker_data.php";
+            String url = "http://volvo.xdo.se/safeassist/login.php";
             //verification key for the php file
             final String key = "32g5hj2g";
 
@@ -87,11 +76,8 @@ public class FirstPage extends AppCompatActivity {
                     if(response.contains("Worker already exists") || response.contains("Inserting successful")){
                         //save the data in SharedPreferences so we later retrieve them for use
                         SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
-                        editor.putString("first_name", firstname);
-                        editor.putString("last_name", lastname);
-                        editor.putString("mUserId", user_id);
-                        editor.putString("mVehicleId", vehicle_id);
-                        editor.putBoolean("is_inlogged", true);
+                        editor.putString("username", username);
+
                         editor.apply();
 
                         Intent intent = new Intent(FirstPage.this, StartScreen.class);
@@ -117,8 +103,8 @@ public class FirstPage extends AppCompatActivity {
                 {
                     Map<String, String>  params = new HashMap<>();
                     // the POST parameters:
-                    params.put("worker_id", user_id);
-                    params.put("mVehicleId", vehicle_id);
+                    params.put("username", username);
+                    params.put("password", password);
                     params.put("key", key);
                     return params;
                 }
