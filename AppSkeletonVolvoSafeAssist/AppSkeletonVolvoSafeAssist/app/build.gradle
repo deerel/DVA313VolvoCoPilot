@@ -2,9 +2,8 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "com.dva313.volvo.safeassist"
+        applicationId "volvo.AppSkeleton_VolvoSafeAssist_Package"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
@@ -16,6 +15,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
