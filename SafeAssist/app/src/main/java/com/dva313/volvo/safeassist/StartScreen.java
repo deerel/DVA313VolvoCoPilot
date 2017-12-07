@@ -23,6 +23,7 @@ import java.util.Date;
 public class StartScreen extends AppCompatActivity {
     public TextView good_day_message, status, mDistance;
     public String mAlertLevel;
+    private Geolocation geoLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,9 @@ public class StartScreen extends AppCompatActivity {
         //status.setBackgroundColor(Color.parseColor("#0FFF07"));
         setStatus();
         good_day_message.setText("Logged in as "+firstname+" "+lastname);
+
+        //Set geoLoc
+        geoLocation.getLocation(this);
 
         startService(new Intent(this, GPSService.class));
     }

@@ -46,7 +46,6 @@ public class FirstPage extends AppCompatActivity {
         mUsername = (EditText)findViewById(R.id.editTextUsername);
         mPassword = (EditText)findViewById(R.id.editTextPassword);
 
-
     }
 
     public void submit_user_result(View v){
