@@ -46,7 +46,7 @@ public class StartScreen extends AppCompatActivity {
         good_day_message.setText("Logged in as "+firstname+" "+lastname);
 
         //Set geoLoc
-        geoLocation.getLocation(this);
+        //geoLocation.getLocation(this); // << this broke the app.
 
         startService(new Intent(this, GPSService.class));
     }

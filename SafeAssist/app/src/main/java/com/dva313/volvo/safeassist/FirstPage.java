@@ -48,7 +48,7 @@ public class FirstPage extends AppCompatActivity {
 
     }
 
-    public void submit_user_result(View v){
+    public void submit_user_result(View v) {
 
         //get the edittext/field data a string
         final String username = mUsername.getText().toString();
