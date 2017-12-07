@@ -1,6 +1,7 @@
 package com.dva313.volvo.safeassist;
 
 import android.content.Context;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -27,6 +28,7 @@ public class Unit {
     //abstract void setIdentifier(String identifier);
     //abstract String getIdentifier();
     public Unit(Context context) {
+
         mContext = context.getApplicationContext();
     }
 
@@ -69,15 +71,6 @@ public class Unit {
 
 
         return mIsLoggedIn;
-    }
-
-    public int alarm_listen(){
-        int incommingAlarm = 0;
-
-        //implement here
-
-
-        return incommingAlarm;
     }
 
 }
