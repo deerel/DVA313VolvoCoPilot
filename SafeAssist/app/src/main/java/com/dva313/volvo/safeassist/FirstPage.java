@@ -38,7 +38,7 @@ public class FirstPage extends AppCompatActivity {
         if(is_inlogged){
             Intent intent = new Intent(FirstPage.this, StartScreen.class);
             startActivity(intent);
-            //to kill the frst page activity
+            //to kill the first page activity
             finish();
         }
 

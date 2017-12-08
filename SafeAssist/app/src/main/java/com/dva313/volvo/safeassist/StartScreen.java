@@ -29,6 +29,7 @@ import java.util.Date;
 
 public class StartScreen extends AppCompatActivity {
     public TextView good_day_message, status, mDistance;
+
     public String mUsername;
     private Geolocation geoLocation;
 
@@ -57,9 +58,6 @@ public class StartScreen extends AppCompatActivity {
         //status.setBackgroundColor(Color.parseColor("#0FFF07"));
         setStatus();
         good_day_message.setText("Logged in as "+mUsername);
-
-        //Set geoLoc
-        //geoLocation.getLocation(this); // << this broke the app.
 
         startService(new Intent(this, GPSService.class));
 
