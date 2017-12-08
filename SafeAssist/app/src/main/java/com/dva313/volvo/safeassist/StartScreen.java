@@ -1,12 +1,19 @@
 package com.dva313.volvo.safeassist;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.res.ResourcesCompat;
@@ -22,8 +29,14 @@ import java.util.Date;
 
 public class StartScreen extends AppCompatActivity {
     public TextView good_day_message, status, mDistance;
-    public String mAlertLevel;
+    public String mUsername;
     private Geolocation geoLocation;
+
+    /* For Alarm Service */
+    public int mAlertLevel;
+    boolean mIsBind = false;
+    Messenger mMessenger;
+    Message mAlarmReply;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,21 +47,26 @@ public class StartScreen extends AppCompatActivity {
         status = (TextView)findViewById(R.id.status_TW);
         mDistance = (TextView)findViewById(R.id.textDistance);
         mDistance.setText("");
-        mAlertLevel = "0";
+        mAlertLevel = 0;
         //get the logged in users data
         SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
         String firstname = preferences.getString("first_name", null);
         String lastname = preferences.getString("last_name", null);
-
+        mUsername = preferences.getString("username", null);
         //status.setText("OK");
         //status.setBackgroundColor(Color.parseColor("#0FFF07"));
         setStatus();
-        good_day_message.setText("Logged in as "+firstname+" "+lastname);
+        good_day_message.setText("Logged in as "+mUsername);
 
         //Set geoLoc
         //geoLocation.getLocation(this); // << this broke the app.
 
         startService(new Intent(this, GPSService.class));
+
+        /* Alarm Service*/
+        Intent intent = new Intent(this, AlarmService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
     }
 
 
@@ -69,19 +87,34 @@ public class StartScreen extends AppCompatActivity {
         status.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorDarkText, null));
 
         switch (mAlertLevel) {
-            case "0" :
-                status.setText("Not inside a working area.");
+            case Constants.ALARM_NO_RESPONSE :
+                status.setText("Caution!\nLost signal.");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                break;
+            case Constants.ALARM_ALARM_LEVEL_0 :
+                v.vibrate(100);
+                status.setText("You are outside a working area.");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                 break;
-            case "1" :
-                v.vibrate(100);
+            case Constants.ALARM_ALARM_LEVEL_1 :
+                v.vibrate(1000);
                 status.setText("Caution!\nYou are inside a working area.");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                 break;
-            case "2" :
+            case Constants.ALARM_ALARM_LEVEL_2 :
                 v.vibrate(1000);
                 status.setText("Alert!\nLook out for vehicles!");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                break;
+            case Constants.ALARM_ALARM_LEVEL_3:
+                v.vibrate(1000);
+                status.setText("Alert!\nVehicles too close!");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                break;
+            case Constants.ALARM_NOTIFICATION :
+                v.vibrate(1000);
+                status.setText("Alert!\nLook out for vehicles!");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                 break;
             default:
                 v.vibrate(100);
@@ -109,6 +142,14 @@ public class StartScreen extends AppCompatActivity {
         super.onResume();
     }
 
+    @Override
+    protected void onStop() {
+        unbindService(serviceConnection);
+        mIsBind = false;
+        mMessenger = null;
+        super.onStop();
+    }
+
     // Our handler for received Intents. This will be called whenever an Intent
     // with an action named "custom-event-name" is broadcasted.
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -118,7 +159,7 @@ public class StartScreen extends AppCompatActivity {
             // Get extra data included in the Intent
             String message = intent.getStringExtra("message");
             Log.d("receiver", "Got message: " + message);
-            mAlertLevel = message.split(",")[0];
+            mAlertLevel = Integer.parseInt(message);
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
             setStatus();
             mDistance.setText(message.split(",")[1]);
@@ -126,5 +167,80 @@ public class StartScreen extends AppCompatActivity {
     };
 
 
+    /* To bind to Alarm Service */
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mMessenger = new Messenger(iBinder);
+            mIsBind = true;
+            initAlarmService();
+        }
 
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mMessenger = null;
+            mIsBind = false;
+        }
+    };
+
+    class ResponseHandler extends Handler {
+        int message;
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            switch (msg.what) {
+                case Constants.ALARM_NOTIFICATION:
+                    message = msg.getData().getInt("Response_message");
+                    break;
+                case Constants.ALARM_ALARM_LEVEL_0:
+                    message = msg.getData().getInt("Response_message");
+                    break;
+                case Constants.ALARM_ALARM_LEVEL_1:
+                    message = msg.getData().getInt("Response_message");
+                    break;
+                case Constants.ALARM_ALARM_LEVEL_2:
+                    message = msg.getData().getInt("Response_message");
+                    break;
+                case Constants.ALARM_NO_RESPONSE:
+                    message = msg.getData().getInt("Response_message");
+                    break;
+                default:
+                    message = Constants.ALARM_NO_RESPONSE;
+            }
+
+            mAlertLevel = message;
+            // Reply to alarm service
+            Bundle bundle = new Bundle();
+            bundle.putString("Response_message", "100");
+            mAlarmReply = Message.obtain(null, Constants.ALARM_ACKNOWLEDGE);
+            mAlarmReply.replyTo = new Messenger(new ResponseHandler());
+            mAlarmReply.setData(bundle);
+            try {
+                mMessenger.send(mAlarmReply);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            setStatus();
+            super.handleMessage(msg);
+
+        }
+
+    }
+
+    private void initAlarmService() {
+
+        Message msg;
+        Bundle bundle = new Bundle();
+        bundle.putString("Response_message", "1000");
+        bundle.putString("Worker_id", mUsername);
+        msg = Message.obtain(null, Constants.ALARM_SET_ALARM_DELAY);
+        msg.setData(bundle);
+        msg.replyTo = new Messenger(new ResponseHandler());
+        try {
+            mMessenger.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
 }

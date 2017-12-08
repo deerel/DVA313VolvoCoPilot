@@ -76,7 +76,6 @@ public class FirstPage extends AppCompatActivity {
                         //save the data in SharedPreferences so we later retrieve them for use
                         SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
                         editor.putString("username", username);
-
                         editor.apply();
 
                         Intent intent = new Intent(FirstPage.this, StartScreen.class);
