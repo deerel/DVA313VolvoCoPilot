@@ -25,8 +25,9 @@ import com.google.android.gms.tasks.Task;
 
 /**
  * Created by Dara on 2017-12-02.
- * Edited by Jonas on 2017-12-07.
- */
+ * Edited by Jonas on 2017-12-07.  Will put this in the backburner for now.
+ * App will use GPSService.java until further notice.
+ **/
 
 public class Geolocation {
     private static final int REQUEST_CHECK_SETTINGS = 1;
@@ -94,6 +95,4 @@ public class Geolocation {
             }
         });
     }
-
-    //public void
 }
