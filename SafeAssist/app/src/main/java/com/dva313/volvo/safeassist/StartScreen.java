@@ -119,17 +119,17 @@ public class StartScreen extends AppCompatActivity {
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                 break;
             case Constants.ALARM_ALARM_LEVEL_0:
-                v.vibrate(100);
+                //v.vibrate(100);
                 status.setText("You are outside a working area.");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                 break;
             case Constants.ALARM_ALARM_LEVEL_1:
-                v.vibrate(1000);
+                v.vibrate(100);
                 status.setText("Caution!\nYou are inside a working area.");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                 break;
             case Constants.ALARM_ALARM_LEVEL_2:
-                v.vibrate(1000);
+                v.vibrate(500);
                 status.setText("Alert!\nLook out for vehicles!");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
                 break;
@@ -139,12 +139,12 @@ public class StartScreen extends AppCompatActivity {
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
                 break;
             case Constants.ALARM_NOTIFICATION:
-                v.vibrate(1000);
+                v.vibrate(100);
                 status.setText("Alert!\nLook out for vehicles!");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                 break;
             default:
-                v.vibrate(100);
+                //v.vibrate(100);
                 status.setText("Caution!\nSystem cannot detect your position.");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                 break;
