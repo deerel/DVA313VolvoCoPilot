@@ -36,14 +36,11 @@ import android.widget.Toast;
 
 import java.util.Date;
 
-import static android.location.LocationManager.GPS_PROVIDER;
-import static android.location.LocationManager.NETWORK_PROVIDER;
 
 public class StartScreen extends AppCompatActivity {
     public TextView good_day_message, status, mDistance;
 
     public String mUsername;
-    private Geolocation geoLocation;
 
     /* For Alarm Service */
     public int mAlertLevel;
@@ -76,7 +73,7 @@ public class StartScreen extends AppCompatActivity {
         setStatus();
         good_day_message.setText("Logged in as " + mUsername);
 
-        startService(new Intent(this, GPSService.class));
+        //startService(new Intent(this, GPSService.class));
 
         /* Alarm Service*/
         //Intent intent = new Intent(this, AlarmService.class);
