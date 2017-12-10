@@ -2,6 +2,10 @@ package com.dva313.volvo.safeassist;
 
 /**
  * Created by Rickard on 2017-11-23.
+ *
+ * THIS IS NOT USED ANY MORE, GPS SERVICE IS
+ * INTEGRATED IN THE ALARM SERVICE.
+ *
  */
 
 import android.app.Service;
@@ -29,7 +33,7 @@ public class GPSService extends Service {
     private static final String TAG = "GPS Message: ";
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000;
-    private static final float LOCATION_DISTANCE = 10f;
+    private static final float LOCATION_DISTANCE = 0.1f;
     private double mLatitude, mLongitude;
     //path to the php file
     String url = "http://volvo.xdo.se/test_gps/update_gps_location.php";

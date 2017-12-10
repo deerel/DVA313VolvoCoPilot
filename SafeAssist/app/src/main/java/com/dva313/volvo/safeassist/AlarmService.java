@@ -1,12 +1,10 @@
 package com.dva313.volvo.safeassist;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -17,9 +15,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,13 +29,9 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.location.LocationManager.GPS_PROVIDER;
-import static android.location.LocationManager.NETWORK_PROVIDER;
 
 /**
  * Created by Rickard on 2017-12-07.
@@ -55,8 +47,8 @@ public class AlarmService extends Service {
     Location mLocation = null;
     RequestQueue mAlarmRequestQueue;
     private LocationManager mLocationManager = null;
-    private static final int LOCATION_INTERVAL = 1000;
-    private static final float LOCATION_DISTANCE = 10f;
+    private static final int LOCATION_INTERVAL = 0; // Minimal duration, in milliseconds, needed to get an update
+    private static final float LOCATION_DISTANCE = 0f; // Minimal distance, in meters, needed to get an update
 
     Messenger messenger = new Messenger(new IncomingHandler());
     static Message mMessageReceived = null;
@@ -67,8 +59,9 @@ public class AlarmService extends Service {
 
         initializeLocationManager();
 
+        /* Try to get access to Androids location providers */
+        /* What if both fails? */
         try {
-            //permissions ACCESS_FINE_LOCATION & ACCESS_COARSE_LOCATIO are used by this below
             mLocationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
                     mLocationListeners[1]);
@@ -87,6 +80,7 @@ public class AlarmService extends Service {
             Log.d("Location", "gps provider does not exist " + ex.getMessage());
         }
 
+        /* Create a queue for http-requests for communication with remote server */
         // Instantiate the cache
         Cache mAlarmCache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
         // Set up the network to use HttpURLConnection as the HTTP client.
@@ -113,8 +107,8 @@ public class AlarmService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        /* Setup for status bar notification, necessary for foreground service*/
         if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-            //Log.i(LOG_TAG, "Received Start Foreground Intent ");
             Intent notificationIntent = new Intent(this, StartScreen.class);
             notificationIntent.setAction(Constants.ACTION.MAIN_ACTION);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -138,7 +132,6 @@ public class AlarmService extends Service {
             startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, notification);
             //timerHandler.postDelayed(timerRunnable, 0);
         } else if (intent.getAction().equals(Constants.ACTION.STOPFOREGROUND_ACTION)) {
-            //Log.i(LOG_TAG, "Received Stop Foreground Intent");
             stopForeground(true);
             //timerHandler.removeCallbacks(timerRunnable);
             stopSelf();
@@ -151,14 +144,16 @@ public class AlarmService extends Service {
         return messenger.getBinder();
     }
 
-    class IncomingHandler extends Handler {
+    class IncomingHandler extends Handler implements Callback {
+
+        Message incomingMessage;
+        int alarm = 0;
 
         @Override
         public void handleMessage(Message msg) {
-            mMessageReceived = msg;
-            Message MSG;
-            String message;
-            Bundle bundle = new Bundle();
+            incomingMessage = msg;
+            //Message replyMessage;
+            //final Bundle replyBundle = new Bundle();
 
             switch (msg.what) {
                 case Constants.ALARM_SET_ALARM_DELAY:
@@ -176,95 +171,39 @@ public class AlarmService extends Service {
             }
 
             // Get Alarm Level from server and respond to sender
-            int alarm = fetchAlarm();
-            //timerHandler.postDelayed(timerRunnable, 0);
-            //Log.i("AlarmService", "Alarm code: " + alarm);
-            switch (alarm) {
-                case Constants.ALARM_NOTIFICATION:
-                    message = "Just a notification";
-                    MSG = Message.obtain(null, Constants.ALARM_NOTIFICATION);
-                    bundle.putInt("Response_message", Constants.ALARM_NOTIFICATION);
-                    MSG.setData(bundle);
+            //alarm = fetchAlarm();
+            // Send alarm level to current activity
+            /*
+            replyMessage = Message.obtain(null, alarm);
+            replyBundle.putInt("Response_message", alarm);
+            replyMessage.setData(replyBundle);
 
-                    try {
-                        msg.replyTo.send(MSG);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case Constants.ALARM_ALARM_LEVEL_0:
-                    message = "No Alarm";
-                    MSG = Message.obtain(null, Constants.ALARM_ALARM_LEVEL_0);
-                    bundle.putInt("Response_message", Constants.ALARM_ALARM_LEVEL_0);
-                    MSG.setData(bundle);
+            try {
+                msg.replyTo.send(replyMessage);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            */
+                /* TEST REGION START*/
+            AlarmUpdateThread mt = new AlarmUpdateThread(this, mSleepTime);
+            mt.run();
 
-                    try {
-                        msg.replyTo.send(MSG);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case Constants.ALARM_ALARM_LEVEL_1:
-                    message = "Alarm Level 1";
-                    MSG = Message.obtain(null, Constants.ALARM_ALARM_LEVEL_1);
-                    bundle.putInt("Response_message", Constants.ALARM_ALARM_LEVEL_1);
-                    MSG.setData(bundle);
+        }
 
-                    try {
-                        msg.replyTo.send(MSG);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case Constants.ALARM_ALARM_LEVEL_2:
-                    message = "Alarm Level 2";
-                    MSG = Message.obtain(null, Constants.ALARM_ALARM_LEVEL_2);
-                    bundle.putInt("Response_message", Constants.ALARM_ALARM_LEVEL_2);
-                    MSG.setData(bundle);
+        /* Waiting for location to be sent to server and alarm to be received */
+        @Override
+        public void callback(int alarm) {
+            Message replyMessage;
+            Bundle replyBundle = new Bundle();
+            Log.i("CALLBACK", "Got callback from Mythread");
+            replyMessage = Message.obtain(null, alarm);
+            replyBundle.putInt("Response_message", alarm);
+            replyMessage.setData(replyBundle);
 
-                    try {
-                        msg.replyTo.send(MSG);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case Constants.ALARM_ALARM_LEVEL_3:
-                    message = "Alarm Level 3";
-                    MSG = Message.obtain(null, Constants.ALARM_ALARM_LEVEL_3);
-                    bundle.putInt("Response_message", Constants.ALARM_ALARM_LEVEL_3);
-                    MSG.setData(bundle);
-
-                    try {
-                        msg.replyTo.send(MSG);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case Constants.ALARM_NO_RESPONSE:
-                    message = "No respons";
-                    MSG = Message.obtain(null, Constants.ALARM_NO_RESPONSE);
-                    bundle.putInt("Response_message", Constants.ALARM_NO_RESPONSE);
-                    MSG.setData(bundle);
-
-                    try {
-                        msg.replyTo.send(MSG);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                default:
-                    message = "No response!";
-                    MSG = Message.obtain(null, Constants.ALARM_ERROR);
-                    bundle.putInt("Response_message", Constants.ALARM_ERROR);
-                    MSG.setData(bundle);
-
-                    try {
-                        msg.replyTo.send(MSG);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-
+            try {
+                incomingMessage.replyTo.send(replyMessage);
+            } catch (RemoteException e) {
+                e.printStackTrace();
             }
 
         }
@@ -272,24 +211,10 @@ public class AlarmService extends Service {
 
     private int fetchAlarm() {
 
-
         if(mWorkerId == null) {
             Log.e("AlarmServie", "Worker id must be set in Alarm Service.");
             return mReturnValue;
         }
-        // Sleep to not spam and drain battery
-        try
-        {
-            Thread.sleep(mSleepTime);
-        }
-        catch (Exception e)
-        {
-            Log.e("AlarmServie: ", e.getMessage());
-            return mReturnValue;
-        }
-
-        // Update GPS location
-        updateLocation();
 
         //sending in the request to php as a POST
         StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
@@ -327,6 +252,43 @@ public class AlarmService extends Service {
         mAlarmRequestQueue.add(postRequest);
         return mReturnValue;
     }
+
+
+    /* TEST REGION START*/
+
+    interface Callback {
+        void callback(int alarm);
+    }
+
+    class AlarmUpdateThread implements Runnable {
+
+        Callback mCallback;
+        int mDelay;
+
+        public AlarmUpdateThread(Callback c, int delay) {
+            Log.i("AlarmUpdateThread", "In the constructor");
+            this.mCallback = c;
+            this.mDelay = delay;
+        }
+
+        public void run() {
+            // some work
+            updateLocation();
+            int alarm = fetchAlarm();
+            Log.i("AlarmUpdateThread", "In the run");
+            // Sleep to not spam and drain battery
+            try
+            {
+                Thread.sleep(mDelay);
+            }
+            catch (Exception e)
+            {
+                Log.e("AlarmUpdateThread: ", e.getMessage());
+            }
+            this.mCallback.callback(alarm); // callback
+        }
+    }
+    /* TEST REGION END*/
 
 
     /*
