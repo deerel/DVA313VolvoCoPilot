@@ -35,11 +35,12 @@ public class StartScreen extends AppCompatActivity {
 
     public String mUsername;
 
+    public int mApplicationState = Constants.STATE.INIT;
+
     /* For Alarm Service */
     public int mAlertLevel;
     boolean mIsBind = false;
     Messenger mMessenger;
-    Message mAlarmReply;
     boolean mIsForeground = true;
 
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION =1;
@@ -107,24 +108,36 @@ public class StartScreen extends AppCompatActivity {
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                 break;
             case Constants.ALARM_ALARM_LEVEL_0:
-                //v.vibrate(100);
-                status.setText("You are outside a working area.");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_0) {
+                    mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_0;
+                    //v.vibrate(100);
+                    status.setText("You are outside a working area.");
+                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                }
                 break;
             case Constants.ALARM_ALARM_LEVEL_1:
-                //v.vibrate(100);
-                status.setText("Caution!\nYou are inside a working area.");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_1) {
+                    mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_1;
+                    //v.vibrate(100);
+                    status.setText("Caution!\nYou are inside a working area.");
+                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                }
                 break;
             case Constants.ALARM_ALARM_LEVEL_2:
-                //v.vibrate(500);
-                status.setText("Alert!\nLook out for vehicles!");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_2) {
+                    mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_2;
+                    //v.vibrate(500);
+                    status.setText("Alert!\nLook out for vehicles!");
+                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                }
                 break;
             case Constants.ALARM_ALARM_LEVEL_3:
-                //v.vibrate(1000);
-                status.setText("Alert!\nVehicles too close!");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_3) {
+                    mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_3;
+                    //v.vibrate(1000);
+                    status.setText("Alert!\nVehicles too close!");
+                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert3, null));
+                }
                 break;
             case Constants.ALARM_NOTIFICATION:
                 //v.vibrate(100);
@@ -132,12 +145,15 @@ public class StartScreen extends AppCompatActivity {
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                 break;
             default:
-                //v.vibrate(100);
-                status.setText("Caution!\nSystem cannot detect your position.");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                if(mApplicationState != Constants.STATE.ALARM_NO_SIGNAL) {
+                    mApplicationState = Constants.STATE.ALARM_NO_SIGNAL;
+                    //v.vibrate(100);
+                    status.setText("Caution!\nSystem cannot detect your position.");
+                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                }
                 break;
         }
-        Log.i("StartScreen", "Alert Level: " + mAlertLevel);
+
         if (!mIsForeground && (mAlertLevel == Constants.ALARM_ALARM_LEVEL_2 || mAlertLevel == Constants.ALARM_ALARM_LEVEL_3)) {
             Log.i("StartScreen", "Alert Level: " + mAlertLevel);
             mIsForeground = true;

@@ -18,6 +18,15 @@ public class Constants {
     public static final int ALARM_NOTIFICATION = 7;
     public static final int ALARM_NO_RESPONSE = 8;
 
+    public interface STATE {
+        public static final int INIT = 0;
+        public static final int ALARM_ALARM_LEVEL_0 = 100;
+        public static final int ALARM_ALARM_LEVEL_1 = 200;
+        public static final int ALARM_ALARM_LEVEL_2 = 300;
+        public static final int ALARM_ALARM_LEVEL_3 = 400;
+        public static final int ALARM_NO_SIGNAL = 1000;
+    }
+
     public interface ACTION {
         public static String MAIN_ACTION = "com.dva313.volvo.safeassist.action.main";
         public static String STARTFOREGROUND_ACTION = "com.dva313.volvo.safeassist.action.main.action.startforeground";
