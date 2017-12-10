@@ -109,10 +109,8 @@ public class AlarmService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         /* Setup for status bar notification, necessary for foreground service*/
         if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-            Intent notificationIntent = new Intent(this, StartScreen.class);
-            notificationIntent.setAction(Constants.ACTION.MAIN_ACTION);
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            Intent notificationIntent = new Intent(getApplicationContext(), StartScreen.class);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0);
 

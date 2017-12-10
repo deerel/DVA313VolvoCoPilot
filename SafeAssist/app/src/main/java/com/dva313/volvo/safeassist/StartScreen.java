@@ -104,7 +104,7 @@ public class StartScreen extends AppCompatActivity {
 
         switch (mAlertLevel) {
             case Constants.ALARM_NO_RESPONSE:
-                status.setText("Caution!\nLost signal.");
+                status.setText("Caution!\nNo signal.");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                 break;
             case Constants.ALARM_ALARM_LEVEL_0:
@@ -275,7 +275,7 @@ public class StartScreen extends AppCompatActivity {
 
         Message msg;
         Bundle bundle = new Bundle();
-        bundle.putString("Response_message", "1000");
+        bundle.putString("Response_message", "5000");
         msg = Message.obtain(null, Constants.ALARM_ACKNOWLEDGE);
         msg.setData(bundle);
         msg.replyTo = new Messenger(new ResponseHandler());
