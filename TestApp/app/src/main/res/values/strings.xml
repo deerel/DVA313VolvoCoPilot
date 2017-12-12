@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TestApp</string>
+    <string name="click_here">Click here</string>
+    <string name="or_here">... Or ... Here...</string>
 </resources>
