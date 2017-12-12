@@ -1,0 +1,1 @@
+this repository contains implementations and test code and anything else related to the CoPilot device, by the CoPilot group dara, Fernando & Pablo.
