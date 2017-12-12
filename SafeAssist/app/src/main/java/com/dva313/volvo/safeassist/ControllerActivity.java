@@ -25,12 +25,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 
 
-public class StartScreen extends AppCompatActivity {
+public class ControllerActivity extends AppCompatActivity {
     public TextView good_day_message, status, mDistance;
 
     public String mUsername;
@@ -93,7 +92,7 @@ public class StartScreen extends AppCompatActivity {
         mIsForeground = false;
 
         //start the first page
-        Intent intent = new Intent(StartScreen.this, FirstPage.class);
+        Intent intent = new Intent(ControllerActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }
@@ -155,9 +154,9 @@ public class StartScreen extends AppCompatActivity {
         }
 
         if (!mIsForeground && (mAlertLevel == Constants.ALARM_ALARM_LEVEL_2 || mAlertLevel == Constants.ALARM_ALARM_LEVEL_3)) {
-            Log.i("StartScreen", "Alert Level: " + mAlertLevel);
+            Log.i("ControllerActivity", "Alert Level: " + mAlertLevel);
             mIsForeground = true;
-            Intent intent = new Intent(getApplicationContext(), StartScreen.class);
+            Intent intent = new Intent(getApplicationContext(), ControllerActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         }

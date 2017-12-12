@@ -15,21 +15,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FirstPage">
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".StartScreen" android:launchMode="singleTop" />
+        <activity android:name=".ControllerActivity" android:launchMode="singleTop" />
 
         <!--
         Removed process.
         original:
         <service android:name=".GPSService" android:process=":my_service" />
         -->
-        <service android:name=".GPSService" />
         <service android:name=".AlarmService" android:process=":alarmservice"  />
     </application>
 

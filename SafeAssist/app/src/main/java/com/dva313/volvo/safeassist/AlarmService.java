@@ -61,6 +61,7 @@ public class AlarmService extends Service {
 
         /* Try to get access to Androids location providers */
         /* What if both fails? */
+        // Todo: Check best accuracy
         try {
             mLocationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
@@ -109,7 +110,7 @@ public class AlarmService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         /* Setup for status bar notification, necessary for foreground service*/
         if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-            Intent notificationIntent = new Intent(getApplicationContext(), StartScreen.class);
+            Intent notificationIntent = new Intent(getApplicationContext(), ControllerActivity.class);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0);
@@ -252,8 +253,6 @@ public class AlarmService extends Service {
     }
 
 
-    /* TEST REGION START*/
-
     interface Callback {
         void callback(int alarm);
     }
@@ -286,7 +285,6 @@ public class AlarmService extends Service {
             this.mCallback.callback(alarm); // callback
         }
     }
-    /* TEST REGION END*/
 
 
     /*

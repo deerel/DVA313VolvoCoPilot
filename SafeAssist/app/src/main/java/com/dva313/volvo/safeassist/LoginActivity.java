@@ -22,7 +22,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FirstPage extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     EditText mUsername, mPassword;
 
 
@@ -36,7 +36,7 @@ public class FirstPage extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
         Boolean is_inlogged = preferences.getBoolean("is_inlogged", false);
         if(is_inlogged){
-            Intent intent = new Intent(FirstPage.this, StartScreen.class);
+            Intent intent = new Intent(LoginActivity.this, ControllerActivity.class);
             startActivity(intent);
             //to kill the first page activity
             finish();
@@ -81,7 +81,7 @@ public class FirstPage extends AppCompatActivity {
                         editor.putString("username", username);
                         editor.apply();
 
-                        Intent intent = new Intent(FirstPage.this, StartScreen.class);
+                        Intent intent = new Intent(LoginActivity.this, ControllerActivity.class);
                         startActivity(intent);
                         //to kill the frst page activity
                         finish();

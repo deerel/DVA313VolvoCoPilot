@@ -32,9 +32,7 @@ public class Unit {
         mContext = context.getApplicationContext();
     }
 
-    /* TODO
-    *  Continue implementation when web interface is done.
-    */
+
     public boolean login(String username, String password){
         String url = "http://volvo.xdo.se/safeassist/login.php";
 
