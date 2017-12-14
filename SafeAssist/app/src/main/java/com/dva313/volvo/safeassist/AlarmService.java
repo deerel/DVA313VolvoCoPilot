@@ -47,8 +47,8 @@ public class AlarmService extends Service {
     Location mLocation = null;
     RequestQueue mAlarmRequestQueue;
     private LocationManager mLocationManager = null;
-    private static final int LOCATION_INTERVAL = 0; // Minimal duration, in milliseconds, needed to get an update
-    private static final float LOCATION_DISTANCE = 0f; // Minimal distance, in meters, needed to get an update
+    private static final int LOCATION_INTERVAL = 5000; // Minimal duration, in milliseconds, needed to get an update
+    private static final float LOCATION_DISTANCE = 0.0f; // Minimal distance, in meters, needed to get an update
 
     Messenger messenger = new Messenger(new IncomingHandler());
     static Message mMessageReceived = null;
@@ -59,18 +59,28 @@ public class AlarmService extends Service {
 
         initializeLocationManager();
 
+        /* Create a queue for http-requests for communication with remote server */
+        // Instantiate the cache
+        Cache mAlarmCache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
+        // Set up the network to use HttpURLConnection as the HTTP client.
+        Network mAlarmNetwork = new BasicNetwork(new HurlStack());
+        // Instantiate the RequestQueue with the cache and network.
+        mAlarmRequestQueue = new RequestQueue(mAlarmCache, mAlarmNetwork);
+        // Start the queue
+        mAlarmRequestQueue.start();
+
         /* Try to get access to Androids location providers */
         /* What if both fails? */
         // Todo: Check best accuracy
-        try {
-            mLocationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
-                    mLocationListeners[1]);
-        } catch (java.lang.SecurityException ex) {
-            Log.i("Location", "fail to request location update, ignore", ex);
-        } catch (IllegalArgumentException ex) {
-            Log.d("Location", "network provider does not exist, " + ex.getMessage());
-        }
+//        try {
+//            mLocationManager.requestLocationUpdates(
+//                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+//                    mLocationListeners[1]);
+//        } catch (java.lang.SecurityException ex) {
+//            Log.i("Location", "fail to request location update, ignore", ex);
+//        } catch (IllegalArgumentException ex) {
+//            Log.d("Location", "network provider does not exist, " + ex.getMessage());
+//        }
         try {
             mLocationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
@@ -81,17 +91,10 @@ public class AlarmService extends Service {
             Log.d("Location", "gps provider does not exist " + ex.getMessage());
         }
 
-        /* Create a queue for http-requests for communication with remote server */
-        // Instantiate the cache
-        Cache mAlarmCache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-        // Set up the network to use HttpURLConnection as the HTTP client.
-        Network mAlarmNetwork = new BasicNetwork(new HurlStack());
-        // Instantiate the RequestQueue with the cache and network.
-        mAlarmRequestQueue = new RequestQueue(mAlarmCache, mAlarmNetwork);
-        // Start the queue
-        mAlarmRequestQueue.start();
     }
 
+    /* Is called when an activity is finishing (someone called finish() on it, or because
+    *  the system is temporarily destroying this instance of the activity to save space.*/
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -106,6 +109,7 @@ public class AlarmService extends Service {
         }
     }
 
+    /* Starting up the service and creates a sticky notification in the status bar*/
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         /* Setup for status bar notification, necessary for foreground service*/
@@ -129,15 +133,14 @@ public class AlarmService extends Service {
                     .setOngoing(true).build();
 
             startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, notification);
-            //timerHandler.postDelayed(timerRunnable, 0);
         } else if (intent.getAction().equals(Constants.ACTION.STOPFOREGROUND_ACTION)) {
             stopForeground(true);
-            //timerHandler.removeCallbacks(timerRunnable);
             stopSelf();
         }
         return START_STICKY;
     }
 
+    /* Bind messenger to ControllerActivity to be able to send and receive messages */
     @Override
     public IBinder onBind(Intent intent) {
         return messenger.getBinder();
@@ -151,8 +154,6 @@ public class AlarmService extends Service {
         @Override
         public void handleMessage(Message msg) {
             incomingMessage = msg;
-            //Message replyMessage;
-            //final Bundle replyBundle = new Bundle();
 
             switch (msg.what) {
                 case Constants.ALARM_SET_ALARM_DELAY:
@@ -169,21 +170,6 @@ public class AlarmService extends Service {
                     super.handleMessage(msg);
             }
 
-            // Get Alarm Level from server and respond to sender
-            //alarm = fetchAlarm();
-            // Send alarm level to current activity
-            /*
-            replyMessage = Message.obtain(null, alarm);
-            replyBundle.putInt("Response_message", alarm);
-            replyMessage.setData(replyBundle);
-
-            try {
-                msg.replyTo.send(replyMessage);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            */
-                /* TEST REGION START*/
             AlarmUpdateThread mt = new AlarmUpdateThread(this, mSleepTime);
             mt.run();
 
@@ -208,6 +194,7 @@ public class AlarmService extends Service {
         }
     }
 
+    /* Connect to the remote server to get alarm status */
     private int fetchAlarm() {
 
         if(mWorkerId == null) {
@@ -215,10 +202,11 @@ public class AlarmService extends Service {
             return mReturnValue;
         }
 
-        //sending in the request to php as a POST
+        /* Setting up a resuest to a specific URL. */
         StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
 
-            @Override//the response from php is received here
+            /* Is called when the servers reply is received  */
+            @Override
             public void onResponse(String response) {
                 try {
                     int alarmResponse = Integer.parseInt(response.toString());
@@ -228,6 +216,8 @@ public class AlarmService extends Service {
                 }
 
             }
+
+           /* Is called if an error occurs  */
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -236,6 +226,7 @@ public class AlarmService extends Service {
             }
         }
         ) {
+            /* Set which arguments to send to the server */
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -247,16 +238,18 @@ public class AlarmService extends Service {
             }
         };
 
-        //Volley.newRequestQueue(getApplicationContext()).add(postRequest);
+        /* Add the server request to a request queue to be sent */
         mAlarmRequestQueue.add(postRequest);
         return mReturnValue;
     }
 
 
+    /* Interface for the alarm thread to communicate with this class (AlarmService) */
     interface Callback {
         void callback(int alarm);
     }
 
+    /* Class that runs a separate thread to update location and fetching alarm status */
     class AlarmUpdateThread implements Runnable {
 
         Callback mCallback;
@@ -269,7 +262,6 @@ public class AlarmService extends Service {
         }
 
         public void run() {
-            // some work
             updateLocation();
             int alarm = fetchAlarm();
             Log.i("AlarmUpdateThread", "In the run");
@@ -327,7 +319,6 @@ public class AlarmService extends Service {
             }
         };
 
-        //Volley.newRequestQueue(getApplicationContext()).add(postRequest);
         mAlarmRequestQueue.add(postRequest);
     }
 
@@ -343,6 +334,7 @@ public class AlarmService extends Service {
         @Override
         public void onLocationChanged(final Location location) {
             mLocation.set(location);
+            //gpstest();
         }
 
         @Override
@@ -374,6 +366,66 @@ public class AlarmService extends Service {
             mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         }
     }
+
+    public void setLocationUpdateInterval(int minTime, int minDistance) {
+
+        try {
+            mLocationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, minTime, minDistance,
+                    mLocationListeners[0]);
+        } catch (java.lang.SecurityException ex) {
+            Log.i("Location", "fail to request location update, ignore", ex);
+        } catch (IllegalArgumentException ex) {
+            Log.d("Location", "gps provider does not exist " + ex.getMessage());
+        }
+
+    }
+
+
+    /* Test function for testing update interval on app in background*/
+    private void gpstest() {
+
+        Log.i("GPS TEST", "Updating...");
+        if(mLocation == null) return;
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
+
+            @Override//the response from php is received here
+            public void onResponse(String response) {
+                if (!response.contains("Inserting gps location successful")) {
+                    Toast.makeText(getApplicationContext(), "Could not update the location to the Database", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+                } else {
+                    Log.i("GPS TEST", response.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //error.printStackTrace();
+                Log.i("GPS TEST", error.getMessage());
+                //Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                // the POST parameters:
+                params.put("worker_id", mWorkerId);
+                params.put("action", "gpstest");
+                //maybe not that good to convert the double values to string and reconvert them in the php, but for now it works
+                params.put("lat", String.valueOf(mLocation.getLatitude()));
+                params.put("lon", String.valueOf(mLocation.getLongitude()));
+                params.put("key", Constants.AUTH_KEY);
+                return params;
+            }
+        };
+
+        mAlarmRequestQueue.add(postRequest);
+    }
+
+
 
 
 }
