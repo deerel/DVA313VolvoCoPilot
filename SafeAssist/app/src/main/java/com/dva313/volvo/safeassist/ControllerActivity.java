@@ -68,9 +68,10 @@ public class ControllerActivity extends AppCompatActivity {
 
 
         /* Foreground service*/
-        Intent startIntent = new Intent(this, AlarmService.class);
+        Intent startIntent = new Intent(this, ForegroundService.class);
         bindService(startIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        startIntent.putExtra("workerId", mUsername);
         startService(startIntent);
 
     }
@@ -82,7 +83,7 @@ public class ControllerActivity extends AppCompatActivity {
         editor.apply();
 
         // Shut down foreground service
-        Intent stopIntent = new Intent(this, AlarmService.class);
+        Intent stopIntent = new Intent(this, ForegroundService.class);
         stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
         startService(stopIntent);
 
@@ -141,6 +142,11 @@ public class ControllerActivity extends AppCompatActivity {
             case Constants.ALARM_NOTIFICATION:
                 //v.vibrate(100);
                 status.setText("Alert!\nLook out for vehicles!");
+                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                break;
+            case Constants.ALARM_INIT:
+                //v.vibrate(100);
+                status.setText("Welcome!\nInitializing service!");
                 status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                 break;
             default:
@@ -212,37 +218,13 @@ public class ControllerActivity extends AppCompatActivity {
         }
     };
 
-    /* The receiver of alarms from AlarmService */
+    /* The receiver of alarms from ForegroundService */
     class ResponseHandler extends Handler {
         int message;
 
         @Override
         public void handleMessage(Message msg) {
-
-//            switch (msg.what) {
-//                case Constants.ALARM_NOTIFICATION:
-//                    message = msg.getData().getInt("Response_message");
-//                    break;
-//                case Constants.ALARM_ALARM_LEVEL_0:
-//                    message = msg.getData().getInt("Response_message");
-//                    break;
-//                case Constants.ALARM_ALARM_LEVEL_1:
-//                    message = msg.getData().getInt("Response_message");
-//                    break;
-//                case Constants.ALARM_ALARM_LEVEL_2:
-//                    message = msg.getData().getInt("Response_message");
-//                    break;
-//                case Constants.ALARM_ALARM_LEVEL_3:
-//                    message = msg.getData().getInt("Response_message");
-//                    break;
-//                case Constants.ALARM_NO_RESPONSE:
-//                    message = msg.getData().getInt("Response_message");
-//                    break;
-//                default:
-//                    message = Constants.ALARM_ERROR;
-//            }
             message = msg.getData().getInt("Response_message");
-            Log.i("StartScree", "message: " + message + " mAlertLevel: " + mAlertLevel);
             mAlertLevel = message;
             acknowledgeAlarmService();
             setStatus();
@@ -269,7 +251,7 @@ public class ControllerActivity extends AppCompatActivity {
         }
     }
 
-    /* Send acknowledgement of received alarm to AlarmService */
+    /* Send acknowledgement of received alarm to ForegroundService */
     private void acknowledgeAlarmService() {
 
         Message msg;

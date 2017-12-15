@@ -9,6 +9,7 @@ public class Constants {
     public static final String AUTH_KEY = "s2K4Jd092Kdc78sdKKCs2423";
 
     public static final int ALARM_ERROR = -1;
+    public static final int ALARM_INIT = 0;
     public static final int ALARM_SET_ALARM_DELAY = 1;
     public static final int ALARM_ACKNOWLEDGE = 2;
     public static final int ALARM_ALARM_LEVEL_0 = 3;

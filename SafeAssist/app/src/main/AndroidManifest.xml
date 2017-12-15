@@ -29,7 +29,7 @@
         original:
         <service android:name=".GPSService" android:process=":my_service" />
         -->
-        <service android:name=".AlarmService" android:process=":alarmservice"  />
+        <service android:name=".ForegroundService" android:process=":alarmservice"  />
     </application>
 
 </manifest>
