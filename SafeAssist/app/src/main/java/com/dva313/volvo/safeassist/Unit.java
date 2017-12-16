@@ -2,6 +2,7 @@ package com.dva313.volvo.safeassist;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -17,59 +18,29 @@ import java.util.Map;
  * Created by Dara on 2017-12-02.
  */
 
-public class Unit {
-    protected Double mRadius;
-    protected String mIdentifier;
+class Unit {
+    private static final Object lock = new Object();
+    private static Unit instance = null;
+    private Double mRadius;
+    private String mIdentifier;
     private boolean mIsLoggedIn = false;
-    private Context mContext;
-
+    private UnitType mUnitType;
     //abstract void setRadius(Double radius);
     //abstract Double getRadius();
     //abstract void setIdentifier(String identifier);
     //abstract String getIdentifier();
-    public Unit(Context context) {
-
-        mContext = context.getApplicationContext();
+    protected Unit(UnitType unitType) {
+        mUnitType = unitType;
     }
 
-
-    public boolean login(String username, String password){
-        String url = "http://volvo.xdo.se/safeassist/login.php";
-
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-
-            @Override//the response from php is received here
-            public void onResponse(String response) {
-                if(response.contains("1")) {
-                    mIsLoggedIn = true;
-                    Toast.makeText(mContext.getApplicationContext(), "Login successful. Welcome!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mContext.getApplicationContext(), "Could not login." + response.toString(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(mContext.getApplicationContext(), "Could not connect to server.", Toast.LENGTH_SHORT).show();
-            }
-        }
-        ) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                // the POST parameters:
-                params.put("worker_id", "kalle");
-                params.put("vehicle_id", "car");
-
-                return params;
-            }
-        };
-
-        Volley.newRequestQueue(mContext.getApplicationContext()).add(postRequest);
-
-
-        return mIsLoggedIn;
+    String getIdentifier() {
+        return mIdentifier;
     }
+
+    UnitType getUnitType() {
+        return mUnitType;
+    }
+
 
 }
 

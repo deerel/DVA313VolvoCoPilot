@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">@color/colorMainText</item>
         <item name="android:typeface">monospace</item>
+        <item name="android:textColorHint">@color/colorMainText</item>
     </style>
 
 </resources>

@@ -22,14 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ControllerActivity" android:launchMode="singleTop" />
+        <activity android:name=".MainActivity" android:launchMode="singleTop" />
 
         <!--
         Removed process.
         original:
         <service android:name=".GPSService" android:process=":my_service" />
         -->
-        <service android:name=".ForegroundService" android:process=":alarmservice"  />
+        <service android:name=".ServerComService" android:process=":alarmservice"  />
     </application>
 
 </manifest>

@@ -3,12 +3,9 @@ package com.dva313.volvo.safeassist;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,36 +14,29 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.StringRequest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Rickard on 2017-12-07.
  */
 
-public class ForegroundService extends Service {
+public class ServerComService extends Service {
 
-    private static final String LOG_TAG = "ForegroundService";
+    private static final String LOG_TAG = "ServerComService";
 
-    int mSleepTime = 500;
-    String mWorkerId = null;
-    RequestQueue mAlarmRequestQueue;
+    private int mSleepTime = 500;
+    private String mWorkerId = null;
+    private UnitType mUnitType = null;
+    private RequestQueue mAlarmRequestQueue;
 
 
-    Messenger messenger = new Messenger(new IncomingHandler());
+    private final Messenger messenger = new Messenger(new IncomingHandler());
     static Message mMessageReceived = null;
 
     private GeoLocation mGeoLocation = null;
@@ -55,6 +45,7 @@ public class ForegroundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
 
         /* Create a queue for http-requests for communication with remote server */
         // Instantiate the cache
@@ -79,8 +70,8 @@ public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         /* Setup for status bar notification, necessary for foreground service*/
-        if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-            Intent notificationIntent = new Intent(getApplicationContext(), ControllerActivity.class);
+        if (intent.getAction(). equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
+            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0);
@@ -103,8 +94,17 @@ public class ForegroundService extends Service {
 
             // Fetching worker id to identify user on the remote server
             mWorkerId = intent.getStringExtra("workerId");
+            mUnitType = (UnitType) intent.getSerializableExtra("unittype");
             // Starting location tracking
-            mGeoLocation = new GeoLocation(mAlarmRequestQueue, getApplicationContext());
+            if(mUnitType == UnitType.HANDHELD)
+                mGeoLocation = new HandheldLocation(mAlarmRequestQueue, getApplicationContext());
+            else if(mUnitType == UnitType.COPILOT)
+                mGeoLocation = new CoPilotLocation(mAlarmRequestQueue, getApplicationContext());
+            else
+            {
+                // Unit not identified
+                Log.i("ServerComService", "Unit could not be identified");
+            }
             mAlarm = new Alarm(mAlarmRequestQueue, getApplicationContext());
 
         } else if (intent.getAction().equals(Constants.ACTION.STOPFOREGROUND_ACTION)) {
@@ -116,7 +116,7 @@ public class ForegroundService extends Service {
         return START_STICKY;
     }
 
-    /* Bind messenger to ControllerActivity to be able to send and receive messages */
+    /* Bind messenger to MainActivity to be able to send and receive messages */
     @Override
     public IBinder onBind(Intent intent) {
         return messenger.getBinder();
@@ -170,7 +170,7 @@ public class ForegroundService extends Service {
     }
 
 
-    /* Interface for the alarm thread to communicate with this class (ForegroundService) */
+    /* Interface for the alarm thread to communicate with this class (ServerComService) */
     interface Callback {
         void callback(int alarm);
     }
@@ -178,8 +178,8 @@ public class ForegroundService extends Service {
     /* Class that runs a separate thread to update location and fetching alarm status */
     class AlarmUpdateThread implements Runnable {
 
-        Callback mCallback;
-        int mDelay;
+        final Callback mCallback;
+        final int mDelay;
 
         public AlarmUpdateThread(Callback c, int delay) {
             this.mCallback = c;

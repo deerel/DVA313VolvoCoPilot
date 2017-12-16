@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DarkEditTheme" parent="android:Theme.Light">
+        <item name="android:windowBackground">@drawable/rounded_edittext</item>
+        <item name="android:textViewStyle">@style/DarkEditText</item>
+    </style>
+
+    <style name="DarkEditText" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/colorDarkText</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+</resources>

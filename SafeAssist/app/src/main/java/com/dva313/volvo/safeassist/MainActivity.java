@@ -29,20 +29,22 @@ import android.widget.TextView;
 
 
 
-public class ControllerActivity extends AppCompatActivity {
-    public TextView good_day_message, status, mDistance;
+public class MainActivity extends AppCompatActivity {
+    private TextView good_day_message, status, mDistance;
 
-    public String mUsername;
+    private String mUsername;
 
-    public int mApplicationState = Constants.STATE.INIT;
+    private int mApplicationState = Constants.STATE.INIT;
+
+    private Unit mUnit = null;
 
     /* For Alarm Service */
-    public int mAlertLevel;
-    boolean mIsBind = false;
-    Messenger mMessenger;
-    boolean mIsForeground = true;
+    private int mAlertLevel;
+    private boolean mIsBind = false;
+    private Messenger mMessenger;
+    private boolean mIsForeground = true;
 
-    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION =1;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION =1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,28 +52,41 @@ public class ControllerActivity extends AppCompatActivity {
 
         checkPermissions();
 
-        setContentView(R.layout.activity_start_screen);
-        good_day_message = (TextView) findViewById(R.id.good_day_message_TW);
-        status = (TextView) findViewById(R.id.status_TW);
-        mDistance = (TextView) findViewById(R.id.textDistance);
-        mDistance.setText("");
+        setContentView(R.layout.main_layout);
+        good_day_message = findViewById(R.id.textViewWelcome);
+        status = findViewById(R.id.textViewStatus);
+        //mDistance = findViewById(R.id.textDistance);
+        //mDistance.setText("");
         mAlertLevel = 0;
+
+
         //get the logged in users data
         SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
         String firstname = preferences.getString("first_name", null);
         String lastname = preferences.getString("last_name", null);
         mUsername = preferences.getString("username", null);
-        //status.setText("OK");
-        //status.setBackgroundColor(Color.parseColor("#0FFF07"));
+
+        String unittype = preferences.getString("unittype", null);
+        Log.i("MainActivity", "Unittype: " + unittype);
+        if(unittype.equals("handheld"))
+            mUnit = new Unit(UnitType.HANDHELD);
+        else if(unittype.equals("copilot"))
+            mUnit = new Unit(UnitType.COPILOT);
+        else {
+            Log.i("MainActivity", "No unittype in prefs.");
+        }
+
+
         setStatus();
         good_day_message.setText("Logged in as " + mUsername);
 
 
         /* Foreground service*/
-        Intent startIntent = new Intent(this, ForegroundService.class);
+        Intent startIntent = new Intent(this, ServerComService.class);
         bindService(startIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
         startIntent.putExtra("workerId", mUsername);
+        startIntent.putExtra("unittype", mUnit.getUnitType());
         startService(startIntent);
 
     }
@@ -83,7 +98,7 @@ public class ControllerActivity extends AppCompatActivity {
         editor.apply();
 
         // Shut down foreground service
-        Intent stopIntent = new Intent(this, ForegroundService.class);
+        Intent stopIntent = new Intent(this, ServerComService.class);
         stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
         startService(stopIntent);
 
@@ -93,7 +108,7 @@ public class ControllerActivity extends AppCompatActivity {
         mIsForeground = false;
 
         //start the first page
-        Intent intent = new Intent(ControllerActivity.this, LoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }
@@ -105,64 +120,72 @@ public class ControllerActivity extends AppCompatActivity {
         switch (mAlertLevel) {
             case Constants.ALARM_NO_RESPONSE:
                 status.setText("Caution!\nNo signal.");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                status.setBackgroundResource(R.drawable.alert_box_1);
                 break;
             case Constants.ALARM_ALARM_LEVEL_0:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_0) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_0;
                     //v.vibrate(100);
-                    status.setText("You are outside a working area.");
-                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                    status.setText(R.string.alert_0);
+                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                    status.setBackgroundResource(R.drawable.alert_box_0);
                 }
                 break;
             case Constants.ALARM_ALARM_LEVEL_1:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_1) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_1;
                     //v.vibrate(100);
-                    status.setText("Caution!\nYou are inside a working area.");
-                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                    status.setText(R.string.alert_1);
+                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                    status.setBackgroundResource(R.drawable.alert_box_1);
                 }
                 break;
             case Constants.ALARM_ALARM_LEVEL_2:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_2) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_2;
                     //v.vibrate(500);
-                    status.setText("Alert!\nLook out for vehicles!");
-                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                    status.setText(R.string.alert_2);
+                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
+                    status.setBackgroundResource(R.drawable.alert_box_2);
                 }
                 break;
             case Constants.ALARM_ALARM_LEVEL_3:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_3) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_3;
                     //v.vibrate(1000);
-                    status.setText("Alert!\nVehicles too close!");
-                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert3, null));
+                    status.setText(R.string.alert_3);
+                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert3, null));
+                    status.setBackgroundResource(R.drawable.alert_box_3);
                 }
                 break;
             case Constants.ALARM_NOTIFICATION:
                 //v.vibrate(100);
                 status.setText("Alert!\nLook out for vehicles!");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                status.setBackgroundResource(R.drawable.alert_box_0);
                 break;
             case Constants.ALARM_INIT:
                 //v.vibrate(100);
-                status.setText("Welcome!\nInitializing service!");
-                status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                status.setText(R.string.initializing);
+                //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                status.setBackgroundResource(R.drawable.alert_box_0);
                 break;
             default:
                 if(mApplicationState != Constants.STATE.ALARM_NO_SIGNAL) {
                     mApplicationState = Constants.STATE.ALARM_NO_SIGNAL;
                     //v.vibrate(100);
-                    status.setText("Caution!\nSystem cannot detect your position.");
-                    status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                    status.setText(R.string.no_signal);
+                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                    status.setBackgroundResource(R.drawable.alert_box_1);
                 }
                 break;
         }
 
         if (!mIsForeground && (mAlertLevel == Constants.ALARM_ALARM_LEVEL_2 || mAlertLevel == Constants.ALARM_ALARM_LEVEL_3)) {
-            Log.i("ControllerActivity", "Alert Level: " + mAlertLevel);
+            Log.i("MainActivity", "Alert Level: " + mAlertLevel);
             mIsForeground = true;
-            Intent intent = new Intent(getApplicationContext(), ControllerActivity.class);
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         }
@@ -203,7 +226,7 @@ public class ControllerActivity extends AppCompatActivity {
     }
 
     /* To bind to Alarm Service to be able to communicate between processes */
-    ServiceConnection serviceConnection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mMessenger = new Messenger(iBinder);
@@ -218,7 +241,7 @@ public class ControllerActivity extends AppCompatActivity {
         }
     };
 
-    /* The receiver of alarms from ForegroundService */
+    /* The receiver of alarms from ServerComService */
     class ResponseHandler extends Handler {
         int message;
 
@@ -251,7 +274,7 @@ public class ControllerActivity extends AppCompatActivity {
         }
     }
 
-    /* Send acknowledgement of received alarm to ForegroundService */
+    /* Send acknowledgement of received alarm to ServerComService */
     private void acknowledgeAlarmService() {
 
         Message msg;
@@ -268,7 +291,7 @@ public class ControllerActivity extends AppCompatActivity {
     }
 
     /* Permissions check */
-    public void checkPermissions() {
+    private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
@@ -308,7 +331,6 @@ public class ControllerActivity extends AppCompatActivity {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
-                return;
             }
 
             // other 'case' lines to check for other

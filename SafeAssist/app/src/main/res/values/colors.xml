@@ -2,12 +2,16 @@
 <resources>
     <color name="colorPrimary">#F2E043</color>
     <color name="colorPrimaryDark">#7F7F7F</color>
-    <color name="colorAccent">#FFF06B</color>
+    <color name="colorAccent">#9ad28d</color>
     <color name="colorBackground">#080F0F</color>
-    <color name="colorMainText">#EEF2F1</color>
-    <color name="colorDarkText">#080F0F</color>
+    <color name="colorMainText">#eef2f1</color>
+    <color name="colorDarkText">#080f0f</color>
     <color name="colorAlert0">#66bb6a</color>
     <color name="colorAlert1">#ffee58</color>
     <color name="colorAlert2">#f9a825</color>
     <color name="colorAlert3">#d32f2f</color>
+    <color name="colorAlert0Dark">#4caf50</color>
+    <color name="colorAlert1Dark">#e4d550</color>
+    <color name="colorAlert2Dark">#e79c23</color>
+    <color name="colorAlert3Dark">#bf2a2a</color>
 </resources>

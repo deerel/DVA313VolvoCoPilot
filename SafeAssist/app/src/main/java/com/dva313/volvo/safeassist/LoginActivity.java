@@ -22,31 +22,31 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
-    EditText mUsername, mPassword;
+class LoginActivity extends AppCompatActivity {
+    private EditText mUsername, mPassword;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.first_page_layout);
+        setContentView(R.layout.login_layout);
 
         //check if worker is already inlogged
         SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
         Boolean is_inlogged = preferences.getBoolean("is_inlogged", false);
         if(is_inlogged){
-            Intent intent = new Intent(LoginActivity.this, ControllerActivity.class);
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             //to kill the first page activity
             finish();
         }
 
         //get each edittext component to later save the text string inside them into vars
-        mUsername = (EditText)findViewById(R.id.editTextUsername);
-        mPassword = (EditText)findViewById(R.id.editTextPassword);
+        mUsername = findViewById(R.id.editTextUsername);
+        mPassword = findViewById(R.id.editTextPassword);
 
-        EditText mDebugInfo = (EditText)findViewById(R.id.editTextDebugInfo);
+        EditText mDebugInfo = findViewById(R.id.editTextDebugInfo);
         mDebugInfo.setText("DEBUG INFO\nTo login use: \nUsername: w001 or w002\nPassword:pass");
 
     }
@@ -79,16 +79,16 @@ public class LoginActivity extends AppCompatActivity {
                         //save the data in SharedPreferences so we later retrieve them for use
                         SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
                         editor.putString("username", username);
+                        editor.putString("unittype", "handheld");
                         editor.apply();
 
-                        Intent intent = new Intent(LoginActivity.this, ControllerActivity.class);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         //to kill the frst page activity
                         finish();
 
                     }else{
                         Toast.makeText(getApplicationContext(), "Inserting failed.", Toast.LENGTH_SHORT).show();
-                        return;
                     }
                 }
             }, new Response.ErrorListener() {

@@ -17,18 +17,18 @@ import java.util.Map;
  * Created by Rickard on 2017-12-15.
  */
 
-public class Alarm {
+class Alarm {
 
     private RequestQueue mRequestQueue = null;
     private Context mContext = null;
     private int mReturnValue = 0;
 
-    public Alarm(RequestQueue requestQueue, Context context) {
+    Alarm(RequestQueue requestQueue, Context context) {
         mRequestQueue = requestQueue;
         mContext = context;
     }
 
-    public int fetchAlarm(final String mWorkerId) {
+    int fetchAlarm(final String mWorkerId) {
 
         if(mWorkerId == null) {
             Log.e("AlarmServie", "Worker id must be set in Alarm Service.");
@@ -42,8 +42,7 @@ public class Alarm {
             @Override
             public void onResponse(String response) {
                 try {
-                    int alarmResponse = Integer.parseInt(response.toString());
-                    mReturnValue = alarmResponse;
+                    mReturnValue = Integer.parseInt(response.toString());
                 } catch (Exception e) {
                     Log.e("AlarmServie: ", e.getMessage());
                 }

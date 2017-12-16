@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">SafeAssist</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">LOGIN</string>
+    <string name="logout">LOGOUT</string>
+    <string name="status">STATUS</string>
+    <string name="logged_in_as">Logged in as</string>
+    <string name="initializing">Welcome!\nInitializing service.</string>
+    <string name="alert_0">You are outside of\nall construction sites</string>
+    <string name="alert_1">Caution!\nYou are inside a construction sites</string>
+    <string name="alert_2">Alert!\nLook out for vehicles!</string>
+    <string name="alert_3">Alert!\nVehicles too close!</string>
+    <string name="no_signal">Caution!\nSystem cannot detect your position.</string>
 </resources>
