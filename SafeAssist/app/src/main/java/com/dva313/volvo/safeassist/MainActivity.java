@@ -24,6 +24,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -93,14 +94,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void logout(View v) {
-        SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
-        editor.putBoolean("is_inlogged", false);
-        editor.apply();
-
         // Shut down foreground service
         Intent stopIntent = new Intent(this, ServerComService.class);
         stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
         startService(stopIntent);
+
+        SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
+        editor.putBoolean("is_inlogged", false);
+        editor.apply();
 
         unbindService(serviceConnection);
         mIsBind = false;
@@ -119,8 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (mAlertLevel) {
             case Constants.ALARM_NO_RESPONSE:
-                status.setText("Caution!\nNo signal.");
-                //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
+                status.setText(R.string.no_signal);
                 status.setBackgroundResource(R.drawable.alert_box_1);
                 break;
             case Constants.ALARM_ALARM_LEVEL_0:
@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_0;
                     //v.vibrate(100);
                     status.setText(R.string.alert_0);
-                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                     status.setBackgroundResource(R.drawable.alert_box_0);
                 }
                 break;
@@ -137,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_1;
                     //v.vibrate(100);
                     status.setText(R.string.alert_1);
-                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                     status.setBackgroundResource(R.drawable.alert_box_1);
                 }
                 break;
@@ -146,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_2;
                     //v.vibrate(500);
                     status.setText(R.string.alert_2);
-                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert2, null));
                     status.setBackgroundResource(R.drawable.alert_box_2);
                 }
                 break;
@@ -155,20 +152,17 @@ public class MainActivity extends AppCompatActivity {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_3;
                     //v.vibrate(1000);
                     status.setText(R.string.alert_3);
-                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert3, null));
                     status.setBackgroundResource(R.drawable.alert_box_3);
                 }
                 break;
             case Constants.ALARM_NOTIFICATION:
                 //v.vibrate(100);
-                status.setText("Alert!\nLook out for vehicles!");
-                //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
+                status.setText("");
                 status.setBackgroundResource(R.drawable.alert_box_0);
                 break;
             case Constants.ALARM_INIT:
                 //v.vibrate(100);
                 status.setText(R.string.initializing);
-                //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert0, null));
                 status.setBackgroundResource(R.drawable.alert_box_0);
                 break;
             default:
@@ -176,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
                     mApplicationState = Constants.STATE.ALARM_NO_SIGNAL;
                     //v.vibrate(100);
                     status.setText(R.string.no_signal);
-                    //status.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAlert1, null));
                     status.setBackgroundResource(R.drawable.alert_box_1);
                 }
                 break;

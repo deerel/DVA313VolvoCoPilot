@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SafeAssist</string>
+    <string name="username">Användarnamn</string>
+    <string name="password">Lösenord</string>
+    <string name="login">Logga in</string>
+    <string name="logout">Logga ut</string>
+    <string name="status">STATUS</string>
+    <string name="logged_in_as">Inligga som</string>
+    <string name="initializing">Välkommen!\nStartar service.</string>
+    <string name="alert_0">Du är utanför alla\nbyggarbetsplatser.</string>
+    <string name="alert_1">Lystring!\nDu är inne på en byggarbetsplats.</string>
+    <string name="alert_2">Varning!\nSe upp för fordon!</string>
+    <string name="alert_3">VARNING!\nFördon för nära!</string>
+    <string name="no_signal">Lystring!\nSystemet kan inte avläsa din position.</string>
+</resources>
