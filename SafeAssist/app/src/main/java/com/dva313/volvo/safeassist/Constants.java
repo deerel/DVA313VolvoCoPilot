@@ -28,6 +28,15 @@ class Constants {
         int ALARM_NO_SIGNAL = 1000;
     }
 
+    interface DELAY {
+        int INIT = 10;
+        int ALARM_ALARM_LEVEL_0 = 5000;
+        int ALARM_ALARM_LEVEL_1 = 5000;
+        int ALARM_ALARM_LEVEL_2 = 2000;
+        int ALARM_ALARM_LEVEL_3 = 1000;
+        int ALARM_DEFAULT = 1000;
+    }
+
     interface ACTION {
         String MAIN_ACTION = "com.dva313.volvo.safeassist.action.main";
         String STARTFOREGROUND_ACTION = "com.dva313.volvo.safeassist.action.main.action.startforeground";

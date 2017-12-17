@@ -1,6 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_logout"
+        android:background="@color/colorPrimary"
+        android:icon="@drawable/ic_back"
+        android:iconTint="@color/colorDarkText"
+        android:orderInCategory="0"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_home"
         android:background="@color/colorPrimary"
         android:icon="@drawable/ic_home"

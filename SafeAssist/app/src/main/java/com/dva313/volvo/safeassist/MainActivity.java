@@ -17,6 +17,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -27,18 +28,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 
 
 public class MainActivity extends AppCompatActivity {
-    private TextView good_day_message, status, mDistance;
-
+    private TextView mTextWelcome, mTextStatus, mDebug;
     private String mUsername;
-
     private int mApplicationState = Constants.STATE.INIT;
-
     private Unit mUnit = null;
 
     /* For Alarm Service */
@@ -56,10 +53,10 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
 
         setContentView(R.layout.main_layout);
-        good_day_message = findViewById(R.id.textViewWelcome);
-        status = findViewById(R.id.textViewStatus);
-        //mDistance = findViewById(R.id.textDistance);
-        //mDistance.setText("");
+        mTextWelcome = findViewById(R.id.textViewWelcome);
+        mTextStatus = findViewById(R.id.textViewStatus);
+        mDebug = findViewById(R.id.textViewDebugInfo);
+        mDebug.setText("");
         mAlertLevel = 0;
 
 
@@ -81,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         setStatus();
-        good_day_message.setText("Logged in as " + mUsername);
+        mTextWelcome.setText("Logged in as " + mUsername);
 
 
         /* Foreground service*/
@@ -94,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /* Custom Action bar start */
     void appToBackground() {
         moveTaskToBack(true);
     }
@@ -109,6 +107,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        if (id == R.id.action_logout) {
+            logout();
+            return true;
+        }
+
         if (id == R.id.action_home) {
             appToBackground();
             return true;
@@ -116,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+    /* Custom Action bar end */
 
-
-    public void logout(View v) {
+    public void logout() {
         // Shut down foreground service
         Intent stopIntent = new Intent(this, ServerComService.class);
         stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
@@ -141,65 +144,66 @@ public class MainActivity extends AppCompatActivity {
 
     private void setStatus() {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        status.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorDarkText, null));
+        mTextStatus.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorDarkText, null));
 
         switch (mAlertLevel) {
             case Constants.ALARM_NO_RESPONSE:
-                status.setText(R.string.no_signal);
-                status.setBackgroundResource(R.drawable.alert_box_1);
+                mTextStatus.setText(R.string.no_signal);
+                mTextStatus.setBackgroundResource(R.drawable.alert_box_1);
                 break;
             case Constants.ALARM_ALARM_LEVEL_0:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_0) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_0;
                     //v.vibrate(100);
-                    status.setText(R.string.alert_0);
-                    status.setBackgroundResource(R.drawable.alert_box_0);
+                    mTextStatus.setText(R.string.alert_0);
+                    mTextStatus.setBackgroundResource(R.drawable.alert_box_0);
                 }
                 break;
             case Constants.ALARM_ALARM_LEVEL_1:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_1) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_1;
                     //v.vibrate(100);
-                    status.setText(R.string.alert_1);
-                    status.setBackgroundResource(R.drawable.alert_box_1);
+                    mTextStatus.setText(R.string.alert_1);
+                    mTextStatus.setBackgroundResource(R.drawable.alert_box_1);
                 }
                 break;
             case Constants.ALARM_ALARM_LEVEL_2:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_2) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_2;
                     //v.vibrate(500);
-                    status.setText(R.string.alert_2);
-                    status.setBackgroundResource(R.drawable.alert_box_2);
+                    mTextStatus.setText(R.string.alert_2);
+                    mTextStatus.setBackgroundResource(R.drawable.alert_box_2);
                 }
                 break;
             case Constants.ALARM_ALARM_LEVEL_3:
                 if(mApplicationState != Constants.STATE.ALARM_ALARM_LEVEL_3) {
                     mApplicationState = Constants.STATE.ALARM_ALARM_LEVEL_3;
                     //v.vibrate(1000);
-                    status.setText(R.string.alert_3);
-                    status.setBackgroundResource(R.drawable.alert_box_3);
+                    mTextStatus.setText(R.string.alert_3);
+                    mTextStatus.setBackgroundResource(R.drawable.alert_box_3);
                 }
                 break;
             case Constants.ALARM_NOTIFICATION:
                 //v.vibrate(100);
-                status.setText("");
-                status.setBackgroundResource(R.drawable.alert_box_0);
+                mTextStatus.setText("");
+                mTextStatus.setBackgroundResource(R.drawable.alert_box_0);
                 break;
             case Constants.ALARM_INIT:
                 //v.vibrate(100);
-                status.setText(R.string.initializing);
-                status.setBackgroundResource(R.drawable.alert_box_0);
+                mTextStatus.setText(R.string.initializing);
+                mTextStatus.setBackgroundResource(R.drawable.alert_box_0);
                 break;
             default:
                 if(mApplicationState != Constants.STATE.ALARM_NO_SIGNAL) {
                     mApplicationState = Constants.STATE.ALARM_NO_SIGNAL;
                     //v.vibrate(100);
-                    status.setText(R.string.no_signal);
-                    status.setBackgroundResource(R.drawable.alert_box_1);
+                    mTextStatus.setText(R.string.no_signal);
+                    mTextStatus.setBackgroundResource(R.drawable.alert_box_1);
                 }
                 break;
         }
 
+        /* Move app to foreground if alarm level is high */
         if (!mIsForeground && (mAlertLevel == Constants.ALARM_ALARM_LEVEL_2 || mAlertLevel == Constants.ALARM_ALARM_LEVEL_3)) {
             Log.i("MainActivity", "Alert Level: " + mAlertLevel);
             mIsForeground = true;
@@ -234,12 +238,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        //super.onDestroy();
         if (mIsBind)
             unbindService(serviceConnection);
         mIsBind = false;
         mIsForeground = false;
         //mMessenger = null;
+        super.onDestroy();
 
     }
 
@@ -266,13 +271,48 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             message = msg.getData().getInt("Response_message");
+            Boolean sendNewDelay = alarmChanged(message);
             mAlertLevel = message;
-            acknowledgeAlarmService();
+            if(sendNewDelay) {
+                newDelayAlarmService(newDelay());
+            } else {
+                acknowledgeAlarmService();
+            }
             setStatus();
             super.handleMessage(msg);
-
         }
+    }
 
+    @NonNull
+    private Boolean alarmChanged(int newLevel) {
+        return mAlertLevel == newLevel;
+    }
+
+    private int newDelay() {
+        int delay = 0;
+
+        switch (mAlertLevel) {
+            case Constants.ALARM_INIT:
+                delay = Constants.DELAY.INIT;
+                break;
+            case Constants.ALARM_ALARM_LEVEL_0:
+                delay = Constants.DELAY.ALARM_ALARM_LEVEL_0;
+                break;
+            case Constants.ALARM_ALARM_LEVEL_1:
+                delay = Constants.DELAY.ALARM_ALARM_LEVEL_1;
+                break;
+            case Constants.ALARM_ALARM_LEVEL_2:
+                delay = Constants.DELAY.ALARM_ALARM_LEVEL_2;
+                break;
+            case Constants.ALARM_ALARM_LEVEL_3:
+                delay = Constants.DELAY.ALARM_ALARM_LEVEL_3;
+                break;
+            default:
+                delay = Constants.DELAY.ALARM_DEFAULT;
+                break;
+        }
+        mDebug.setText("Update interval: " + delay + " ms");
+        return delay;
     }
 
     /* Initiate the Alarm Service communication */
@@ -294,11 +334,25 @@ public class MainActivity extends AppCompatActivity {
 
     /* Send acknowledgement of received alarm to ServerComService */
     private void acknowledgeAlarmService() {
-
         Message msg;
         Bundle bundle = new Bundle();
         bundle.putString("Response_message", "5000");
         msg = Message.obtain(null, Constants.ALARM_ACKNOWLEDGE);
+        msg.setData(bundle);
+        msg.replyTo = new Messenger(new ResponseHandler());
+        try {
+            mMessenger.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* Send acknowledgement of received alarm to ServerComService */
+    private void newDelayAlarmService(int delay) {
+        Message msg;
+        Bundle bundle = new Bundle();
+        bundle.putString("Response_message", ""+delay);
+        msg = Message.obtain(null, Constants.ALARM_SET_ALARM_DELAY);
         msg.setData(bundle);
         msg.replyTo = new Messenger(new ResponseHandler());
         try {

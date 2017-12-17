@@ -34,6 +34,7 @@ public class ServerComService extends Service {
     private String mWorkerId = null;
     private UnitType mUnitType = null;
     private RequestQueue mAlarmRequestQueue;
+    AlarmUpdateThread mAlarmUpdateThread = null;
 
 
     private final Messenger messenger = new Messenger(new IncomingHandler());
@@ -146,8 +147,8 @@ public class ServerComService extends Service {
                     super.handleMessage(msg);
             }
 
-            AlarmUpdateThread mt = new AlarmUpdateThread(this, mSleepTime);
-            mt.run();
+            mAlarmUpdateThread = new AlarmUpdateThread(this, mSleepTime);
+            mAlarmUpdateThread.run();
 
         }
 
