@@ -18,6 +18,7 @@ class Constants {
     static final int ALARM_ALARM_LEVEL_3 = 6;
     static final int ALARM_NOTIFICATION = 7;
     static final int ALARM_NO_RESPONSE = 8;
+    static final int ALARM_FINISH = 10;
 
     interface STATE {
         int INIT = 0;
@@ -29,7 +30,7 @@ class Constants {
     }
 
     interface DELAY {
-        int INIT = 10;
+        int INIT = 100;
         int ALARM_ALARM_LEVEL_0 = 5000;
         int ALARM_ALARM_LEVEL_1 = 5000;
         int ALARM_ALARM_LEVEL_2 = 2000;

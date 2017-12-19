@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void logout() {
         // Shut down foreground service
+        finishAlarmService();
         Intent stopIntent = new Intent(this, ServerComService.class);
         stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
         startService(stopIntent);
@@ -274,8 +275,10 @@ public class MainActivity extends AppCompatActivity {
             Boolean sendNewDelay = alarmChanged(message);
             mAlertLevel = message;
             if(sendNewDelay) {
+                Log.i("MainActivity", "New Delay to Alarm Service");
                 newDelayAlarmService(newDelay());
             } else {
+                Log.i("MainActivity", "Ack to Alarm Service");
                 acknowledgeAlarmService();
             }
             setStatus();
@@ -285,7 +288,9 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private Boolean alarmChanged(int newLevel) {
-        return mAlertLevel == newLevel;
+        Log.i("MainActivity", "mAlarmLevel: " + mAlertLevel + " newLevel: " + newLevel);
+        return mAlertLevel != newLevel;
+
     }
 
     private int newDelay() {
@@ -335,10 +340,10 @@ public class MainActivity extends AppCompatActivity {
     /* Send acknowledgement of received alarm to ServerComService */
     private void acknowledgeAlarmService() {
         Message msg;
-        Bundle bundle = new Bundle();
-        bundle.putString("Response_message", "5000");
+        //Bundle bundle = new Bundle();
+        //bundle.putString("Response_message", "5000");
         msg = Message.obtain(null, Constants.ALARM_ACKNOWLEDGE);
-        msg.setData(bundle);
+        //msg.setData(bundle);
         msg.replyTo = new Messenger(new ResponseHandler());
         try {
             mMessenger.send(msg);
@@ -354,6 +359,20 @@ public class MainActivity extends AppCompatActivity {
         bundle.putString("Response_message", ""+delay);
         msg = Message.obtain(null, Constants.ALARM_SET_ALARM_DELAY);
         msg.setData(bundle);
+        msg.replyTo = new Messenger(new ResponseHandler());
+        try {
+            mMessenger.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void finishAlarmService() {
+        Message msg;
+        //Bundle bundle = new Bundle();
+        //bundle.putString("Response_message", ""+delay);
+        msg = Message.obtain(null, Constants.ALARM_FINISH);
+        //msg.setData(bundle);
         msg.replyTo = new Messenger(new ResponseHandler());
         try {
             mMessenger.send(msg);

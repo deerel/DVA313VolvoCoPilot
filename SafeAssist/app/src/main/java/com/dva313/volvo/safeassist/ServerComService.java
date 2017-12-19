@@ -22,6 +22,9 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Created by Rickard on 2017-12-07.
  */
@@ -35,10 +38,13 @@ public class ServerComService extends Service {
     private UnitType mUnitType = null;
     private RequestQueue mAlarmRequestQueue;
     AlarmUpdateThread mAlarmUpdateThread = null;
-
+    Timer mTimer = null;
+    TimerTask mServerRequests = null;
+    Boolean mTimerRunning = false;
 
     private final Messenger messenger = new Messenger(new IncomingHandler());
     static Message mMessageReceived = null;
+
 
     private GeoLocation mGeoLocation = null;
     private Alarm mAlarm = null;
@@ -46,7 +52,6 @@ public class ServerComService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
 
         /* Create a queue for http-requests for communication with remote server */
         // Instantiate the cache
@@ -127,11 +132,11 @@ public class ServerComService extends Service {
 
         Message incomingMessage;
         int alarm = 0;
-
+        Boolean newTimer = false;
         @Override
         public void handleMessage(Message msg) {
             incomingMessage = msg;
-
+            mMessageReceived = msg;
             switch (msg.what) {
                 case Constants.ALARM_SET_ALARM_DELAY:
                     String delay = msg.getData().getString("Response_message");
@@ -139,30 +144,52 @@ public class ServerComService extends Service {
                         mWorkerId = msg.getData().getString("Worker_id");
                     }
                     mSleepTime = Integer.parseInt(delay);
+                    newTimer = true;
                     break;
                 case Constants.ALARM_ACKNOWLEDGE:
+                    newTimer = false;
                     /* Sender is ready for a new message */
+                    break;
+                case Constants.ALARM_FINISH:
+                    newTimer = false;
+                    try {
+                        mServerRequests.cancel();
+                        mTimer.cancel();
+                    } catch(IllegalThreadStateException e) {
+
+                    }
                     break;
                 default:
                     super.handleMessage(msg);
             }
 
-            mAlarmUpdateThread = new AlarmUpdateThread(this, mSleepTime);
-            mAlarmUpdateThread.run();
+            if(mTimer == null) {mTimer = new Timer();}
+            if(mServerRequests == null ) mServerRequests = new AlarmUpdateThread(this, mSleepTime, incomingMessage.replyTo);
+
+            /* If update interval is changed while thread is running, stop current thread */
+            if(newTimer) {
+                try {
+                    mServerRequests.cancel();
+                } catch(IllegalThreadStateException e) {
+
+                }
+                mTimer.cancel();
+                mTimer = new Timer();
+                mTimer.scheduleAtFixedRate(new AlarmUpdateThread(this, mSleepTime, incomingMessage.replyTo), mSleepTime, mSleepTime);
+            }
 
         }
 
         /* Waiting for location to be sent to server and alarm to be received */
         @Override
-        public void callback(int alarm) {
+        public void callback(int alarm, Messenger messenger) {
             Message replyMessage;
             Bundle replyBundle = new Bundle();
             replyMessage = Message.obtain(null, alarm);
             replyBundle.putInt("Response_message", alarm);
             replyMessage.setData(replyBundle);
-
             try {
-                incomingMessage.replyTo.send(replyMessage);
+                messenger.send(replyMessage);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -173,35 +200,50 @@ public class ServerComService extends Service {
 
     /* Interface for the alarm thread to communicate with this class (ServerComService) */
     interface Callback {
-        void callback(int alarm);
+        void callback(int alarm, Messenger messenger);
     }
 
     /* Class that runs a separate thread to update location and fetching alarm status */
-    class AlarmUpdateThread implements Runnable {
+    class AlarmUpdateThread extends TimerTask implements Callback {
 
-        final Callback mCallback;
-        final int mDelay;
 
-        public AlarmUpdateThread(Callback c, int delay) {
-            this.mCallback = c;
-            this.mDelay = delay;
+        Callback mCallback;
+        int mDelay;
+        Messenger mMessenger;
+
+        public AlarmUpdateThread(Callback c, int delay, Messenger messenger) {
+            mCallback = c;
+            mDelay = delay;
+            mMessenger = messenger;
+        }
+
+        @Override
+        public void callback(int alarm, Messenger messenger) {
+            mCallback.callback(alarm, mMessenger);
+        }
+
+        @Override
+        public boolean cancel() {
+            mAlarm.cancel();
+            return true;
         }
 
         public void run() {
             if(mGeoLocation != null) {
                 mGeoLocation.updateLocation(mWorkerId);
             }
-            int alarm = mAlarm.fetchAlarm(mWorkerId);
-            this.mCallback.callback(alarm); // callback
+            int alarm = mAlarm.fetchAlarm(mWorkerId, this);
+
+            //this.mCallback.callback(alarm); // callback
             // Sleep to not spam and drain battery
-            try
-            {
-                Thread.sleep(mDelay);
-            }
-            catch (Exception e)
-            {
-                Log.e("AlarmUpdateThread: ", e.getMessage());
-            }
+//            try
+//            {
+//                Thread.sleep(mDelay);
+//            }
+//            catch (Exception e)
+//            {
+//                Log.e("AlarmUpdateThread: ", e.getMessage());
+//            }
         }
     }
 

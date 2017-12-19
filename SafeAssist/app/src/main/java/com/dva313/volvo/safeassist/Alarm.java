@@ -1,6 +1,8 @@
 package com.dva313.volvo.safeassist;
 
 import android.content.Context;
+import android.os.Message;
+import android.telecom.Call;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -8,10 +10,14 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Rickard on 2017-12-15.
@@ -28,7 +34,8 @@ class Alarm {
         mContext = context;
     }
 
-    int fetchAlarm(final String mWorkerId) {
+
+    int fetchAlarm(final String mWorkerId, final ServerComService.Callback c) {
 
         if(mWorkerId == null) {
             Log.e("AlarmServie", "Worker id must be set in Alarm Service.");
@@ -43,6 +50,7 @@ class Alarm {
             public void onResponse(String response) {
                 try {
                     mReturnValue = Integer.parseInt(response.toString());
+                    c.callback(mReturnValue, null);
                 } catch (Exception e) {
                     Log.e("AlarmServie: ", e.getMessage());
                 }
@@ -74,4 +82,14 @@ class Alarm {
         mRequestQueue.add(postRequest);
         return mReturnValue;
     }
+
+    public void cancel() {
+        mRequestQueue.cancelAll(new RequestQueue.RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return true;
+            }
+        });
+    }
+
 }
