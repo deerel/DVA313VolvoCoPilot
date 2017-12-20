@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/IpShow.iml" filepath="$PROJECT_DIR$/IpShow.iml" />
+      <module fileurl="file://C:\Users\pablo\Documents\GitHub\DVA313VolvoCoPilot\CoPilot Group Repository\IpShow\IpShow.iml" filepath="C:\Users\pablo\Documents\GitHub\DVA313VolvoCoPilot\CoPilot Group Repository\IpShow\IpShow.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\pablo\Documents\GitHub\DVA313VolvoCoPilot\CoPilot Group Repository\IpShow\app\app.iml" filepath="C:\Users\pablo\Documents\GitHub\DVA313VolvoCoPilot\CoPilot Group Repository\IpShow\app\app.iml" />
     </modules>
   </component>
 </project>

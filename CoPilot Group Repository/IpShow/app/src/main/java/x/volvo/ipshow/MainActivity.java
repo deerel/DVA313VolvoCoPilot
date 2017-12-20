@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         exit_button = (Button)findViewById(R.id.exit_app);
         show_ip_button = (Button)findViewById(R.id.show_ip);
         ip_text = (TextView)findViewById(R.id.show_ip_TW);
+
     }
 
     public void show_ip(View v){
