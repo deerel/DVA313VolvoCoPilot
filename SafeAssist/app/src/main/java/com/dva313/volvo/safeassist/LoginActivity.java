@@ -88,19 +88,14 @@ public class LoginActivity extends AppCompatActivity {
 
             final String user_id = username+"_"+password;
 
-            //path to the php file
-            String url = "http://volvo.xdo.se/safeassist/login.php";
-            //verification key for the php file
-            final String key = "32g5hj2g";
-
             //sending in the request to php as a POST
-            StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
 
                 @Override//the response from php is received here
                 public void onResponse(String response) {
 
                     //if the worker was inserted newly or it already existed in the DB
-                    if(response.contains("Worker already exists") || response.contains("Inserting successful")){
+                    if(response.contains("Inserting successful")){
                         //save the data in SharedPreferences so we later retrieve them for use
                         SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
                         editor.putString("username", username);
@@ -109,11 +104,11 @@ public class LoginActivity extends AppCompatActivity {
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
-                        //to kill the frst page activity
+                        //to kill the first page activity
                         finish();
 
                     }else{
-                        Toast.makeText(getApplicationContext(), "Inserting failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
                     }
                 }
             }, new Response.ErrorListener() {
@@ -129,9 +124,10 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     Map<String, String>  params = new HashMap<>();
                     // the POST parameters:
-                    params.put("username", username);
+                    params.put("action", "login");
+                    params.put("worker_id", username);
                     params.put("password", password);
-                    params.put("key", key);
+                    params.put("key", Constants.AUTH_KEY);
                     return params;
                 }
             };
