@@ -1,9 +1,14 @@
 package com.dva313.volvo.safeassist;
 
 /**
- * Created by Rickard on 2017-12-08.
+ * Signal code dictionary
+ *
+ * <P>Constants for signal codes for inter-class and server communication.
+ *
+ * @author Rickard
+ * @version 1.0
+ * @since   2017-12-08
  */
-
 class Constants {
     static final String SERVICE_URL = "http://volvo.xdo.se/safeassist/appinterface.php";
     static final String AUTH_KEY = "s2K4Jd092Kdc78sdKKCs2423";
@@ -18,6 +23,7 @@ class Constants {
     static final int ALARM_ALARM_LEVEL_3 = 6;
     static final int ALARM_NOTIFICATION = 7;
     static final int ALARM_NO_RESPONSE = 8;
+    static final int ALARM_FINISH = 10;
 
     interface STATE {
         int INIT = 0;
@@ -29,7 +35,7 @@ class Constants {
     }
 
     interface DELAY {
-        int INIT = 10;
+        int INIT = 100;
         int ALARM_ALARM_LEVEL_0 = 5000;
         int ALARM_ALARM_LEVEL_1 = 5000;
         int ALARM_ALARM_LEVEL_2 = 2000;
