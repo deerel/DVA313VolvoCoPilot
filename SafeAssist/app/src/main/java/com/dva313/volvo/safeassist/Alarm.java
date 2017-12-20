@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Alarm Fetching Service
  *
- * <P>Fetching current alarm level from remote server.
+ * <P>Handles server requests for alarm data.
  *
  * @author Rickard
  * @version 1.0
@@ -40,8 +40,14 @@ class Alarm {
         mContext = context;
     }
 
-
-    int fetchAlarm(final String mWorkerId, final ServerComService.Callback c) {
+    /**
+     * Returns the current alarm level for the given user.
+     *
+     * @param mWorkerId The id of the logged in worker
+     * @param caller    Reference to the object to reply to on server response
+     * @return          Integer, the alarm level received from the server
+     */
+    int fetchAlarm(final String mWorkerId, final ServerComService.Callback caller) {
 
         if(mWorkerId == null) {
             Log.e("AlarmServie", "Worker id must be set in Alarm Service.");
@@ -56,7 +62,7 @@ class Alarm {
             public void onResponse(String response) {
                 try {
                     mReturnValue = Integer.parseInt(response.toString());
-                    c.callback(mReturnValue, null);
+                    caller.callback(mReturnValue, null);
                 } catch (Exception e) {
                     Log.e("AlarmServie: ", e.getMessage());
                 }
@@ -89,6 +95,9 @@ class Alarm {
         return mReturnValue;
     }
 
+    /**
+     * Cancel all server communication and stop listening for reply.
+     */
     public void cancel() {
         mRequestQueue.cancelAll(new RequestQueue.RequestFilter() {
             @Override

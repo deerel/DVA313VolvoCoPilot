@@ -31,13 +31,15 @@ class CoPilotLocation extends GeoLocation {
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000; // Minimal duration, in milliseconds, needed to get an update
     private static final float LOCATION_DISTANCE = 0.0f; // Minimal distance, in meters, needed to get an update
-    //private final RequestQueue mAlarmRequestQueue;
-    //private Context mContext = null;
-    //String mWorkerId = null;
 
-
+    /**
+     * Constructor
+     *
+     * @param requestQueue  A Volly request queue for sending http-request.
+     * @param context       The context of the caller.
+     */
     CoPilotLocation(RequestQueue requestQueue, Context context) {
-        super(requestQueue,context);
+        super(requestQueue, context);
         //mAlarmRequestQueue = requestQueue;
         //mContext = context;
         //mWorkerId = workerId;
@@ -46,6 +48,9 @@ class CoPilotLocation extends GeoLocation {
 
     }
 
+    /**
+     * Should be called when the object is not needed any more.
+     */
     @Override
     void onDestroy() {
         if (mLocationManager != null) {
@@ -59,6 +64,11 @@ class CoPilotLocation extends GeoLocation {
         }
     }
 
+    /**
+     * Send an update of current position to the server.
+     *
+     * @param identifier    The identifier for the logged in user or vehicle (CoPilot)
+     */
     @Override
     void updateLocation(final String identifier) {
 
@@ -99,6 +109,9 @@ class CoPilotLocation extends GeoLocation {
         mAlarmRequestQueue.add(postRequest);
     }
 
+    /**
+     * Listener for location data on the device
+     */
     private class LocationListener implements android.location.LocationListener
     {
 
@@ -138,6 +151,9 @@ class CoPilotLocation extends GeoLocation {
             new LocationListener(LocationManager.NETWORK_PROVIDER)
     };
 
+    /**
+     * Start up the location manager to be able to listen for location data
+     */
     private void initializeLocationManager() {
         if (mLocationManager == null) {
             mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -164,6 +180,12 @@ class CoPilotLocation extends GeoLocation {
         }
     }
 
+    /**
+     * Set the update interval for location listener.
+     *
+     * @param minTime       Minimum time in millis between updates.
+     * @param minDistance   Minimum distanse in meters between updates.
+     */
     public void setLocationUpdateInterval(int minTime, int minDistance) {
 
         try {
@@ -177,49 +199,5 @@ class CoPilotLocation extends GeoLocation {
         }
 
     }
-
-
-//    /* Test function for testing update interval on app in background*/
-//    private void gpstest() {
-//
-//        Log.i("GPS TEST", "Updating...");
-//        if(mLocation == null) return;
-//
-//        StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
-//
-//            @Override//the response from php is received here
-//            public void onResponse(String response) {
-//                if (!response.contains("Inserting gps location successful")) {
-//                    Toast.makeText(mContext, "Could not update the location to the Database", Toast.LENGTH_SHORT).show();
-//                    Toast.makeText(mContext, response, Toast.LENGTH_LONG).show();
-//                } else {
-//                    Log.i("GPS TEST", response.toString());
-//                }
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                //error.printStackTrace();
-//                Log.i("GPS TEST", error.getMessage());
-//                //Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//        ) {
-//            @Override
-//            protected Map<String, String> getParams() {
-//                Map<String, String> params = new HashMap<>();
-//                // the POST parameters:
-//                params.put("worker_id", mWorkerId);
-//                params.put("action", "gpstest");
-//                //maybe not that good to convert the double values to string and reconvert them in the php, but for now it works
-//                params.put("lat", String.valueOf(mLocation.getLatitude()));
-//                params.put("lon", String.valueOf(mLocation.getLongitude()));
-//                params.put("key", Constants.AUTH_KEY);
-//                return params;
-//            }
-//        };
-//
-//        mAlarmRequestQueue.add(postRequest);
-//    }
 
 }
