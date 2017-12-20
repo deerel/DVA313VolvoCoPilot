@@ -1,9 +1,5 @@
 package com.dva313.volvo.safeassist;
 
-/**
- * Created by Rickard on 2017-11-23.
- */
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -25,6 +21,15 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * LoginActivity
+ *
+ * <P>Application starting point. Handles user login.
+ *
+ * @author Dara
+ * @version 1.0
+ * @since   2017-12-08
+ */
 public class LoginActivity extends AppCompatActivity {
     private EditText mUsername, mPassword;
 
@@ -38,12 +43,13 @@ public class LoginActivity extends AppCompatActivity {
         //check if worker is already inlogged
         SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
         Boolean is_inlogged = preferences.getBoolean("is_inlogged", false);
-        if(is_inlogged){
+        /* User should login every time, until that is changed the following code is disabled */
+        /*if(is_inlogged){
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             //to kill the first page activity
             finish();
-        }
+        }*/
 
         //get each edittext component to later save the text string inside them into vars
         mUsername = findViewById(R.id.editTextUsername);

@@ -1,9 +1,14 @@
 package com.dva313.volvo.safeassist;
 
 /**
- * Created by Rickard on 2017-12-08.
+ * Signal code dictionary
+ *
+ * <P>Constants for signal codes for inter-class and server communication.
+ *
+ * @author Rickard
+ * @version 1.0
+ * @since   2017-12-08
  */
-
 class Constants {
     static final String SERVICE_URL = "http://volvo.xdo.se/safeassist/appinterface.php";
     static final String AUTH_KEY = "s2K4Jd092Kdc78sdKKCs2423";

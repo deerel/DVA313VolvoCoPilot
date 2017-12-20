@@ -15,9 +15,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Dara on 2017-12-02.
+ * Unit information
+ *
+ * <P>Stores information of the unit (device) tha app is executed on.
+ *
+ * @author Dara
+ * @version 1.0
+ * @since   2017-12-02
  */
-
 class Unit {
     private static final Object lock = new Object();
     private static Unit instance = null;

@@ -20,15 +20,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Created by Rickard on 2017-12-15.
+ * Alarm Fetching Service
+ *
+ * <P>Fetching current alarm level from remote server.
+ *
+ * @author Rickard
+ * @version 1.0
+ * @since   2017-12-08
  */
-
 class Alarm {
 
     private RequestQueue mRequestQueue = null;
     private Context mContext = null;
     private int mReturnValue = 0;
 
+    
     Alarm(RequestQueue requestQueue, Context context) {
         mRequestQueue = requestQueue;
         mContext = context;

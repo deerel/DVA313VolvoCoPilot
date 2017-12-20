@@ -31,7 +31,16 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 
-
+/**
+ * MainActivity
+ *
+ * <P>Contains the main features of the application, i.e. displaying alerts and starting
+ * service for location and alarm update.
+ *
+ * @author Dara
+ * @version 1.0
+ * @since   2017-12-08
+ */
 public class MainActivity extends AppCompatActivity {
     private TextView mTextWelcome, mTextStatus, mDebug;
     private String mUsername;

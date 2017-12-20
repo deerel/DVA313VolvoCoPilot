@@ -17,9 +17,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Rickard on 2017-12-15.
+ * CoPilot GPS Location service
+ *
+ * <P>Reads the device's location and sends updates to remote server.
+ *
+ * @author Rickard
+ * @version 1.0
+ * @since   2017-12-15
  */
-
 class CoPilotLocation extends GeoLocation {
 
     private Location mLocation = null;

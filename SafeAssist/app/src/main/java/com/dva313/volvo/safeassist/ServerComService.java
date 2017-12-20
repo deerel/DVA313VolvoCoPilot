@@ -25,10 +25,20 @@ import com.android.volley.toolbox.HurlStack;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by Rickard on 2017-12-07.
- */
 
+/**
+ * Server Communication Service
+ *
+ * <P>Handles alarm and location services and passing of updates to
+ * the main activity.
+ *
+ * <P>Note that this should be started as a Foreground Service to
+ * work correct.
+ *
+ * @author Rickard
+ * @version 1.0
+ * @since   2017-12-07
+ */
 public class ServerComService extends Service {
 
     private static final String LOG_TAG = "ServerComService";
