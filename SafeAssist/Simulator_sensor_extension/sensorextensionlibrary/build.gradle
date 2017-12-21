@@ -21,19 +21,11 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.config
-            dependencies {
-                compile fileTree(include: ['*.jar'], dir: 'libs')
-                compile project(':canparser')
-            }
         }
         release {
             signingConfig signingConfigs.config
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            dependencies {
-                compile fileTree(include: ['*.jar'], dir: 'libs')
-                compile project(':canparser')
-            }
         }
         handheld {
             signingConfig signingConfigs.config
@@ -44,12 +36,12 @@ android {
             signingConfig signingConfigs.config
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            dependencies {
-                compile fileTree(include: ['*.jar'], dir: 'libs')
-                compile project(':canparser')
-            }
         }
     }
 }
 
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':canparser')
+}
 

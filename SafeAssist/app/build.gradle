@@ -17,6 +17,12 @@ android {
             storeFile file('C:/Users/Rickard/Google Drive/SE2_ CoPilot Safe Assist/Prototype/theKey.jks')
             storePassword 'VCEKEY'
         }
+        HandHeldConfig {
+            keyAlias 'dva313'
+            keyPassword 'dva313'
+            storePassword 'dva313'
+            storeFile file('C:/Users/Rickard/Documents/GitHub/DVA313VolvoCoPilot/Prototype/ourkey.jks')
+        }
     }
     buildTypes {
         release {
@@ -37,15 +43,7 @@ android {
                 compile 'com.android.volley:volley:1.0.0'
             }
 
-            signingConfig signingConfigs.config
-            signingConfigs {
-                config {
-                    keyAlias 'dva313'
-                    keyPassword 'dva313'
-                    storePassword 'dva313'
-                    storeFile file('C:/Users/Rickard/Documents/GitHub/DVA313VolvoCoPilot/Prototype/ourkey.jks')
-                }
-            }
+            signingConfig signingConfigs.HandHeldConfig
         }
         copilot {
             minifyEnabled false
