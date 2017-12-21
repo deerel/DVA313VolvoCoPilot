@@ -5,28 +5,24 @@ android {
         config {
             keyAlias 'theKey'
             keyPassword 'VCEKEY'
-            storeFile file('C:/Users/pablo/Documents/GitHub/DVA313VolvoCoPilot/CoPilot Group Repository/test_volvo4/app/theKey.jks')
+            storeFile file('C:/Users/pablo/Desktop/eco_drive/app/theKey.jks')
             storePassword 'VCEKEY'
         }
     }
-
     compileSdkVersion 27
-    //compileSdkVersion 15
-    //buildToolsVersion "23.0.3"
-
     defaultConfig {
         applicationId "softproduct.volvo.com.eco_drive"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.config
         }
         release {
-            signingConfig signingConfigs.config
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -34,13 +30,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    //compile 'com.android.support:appcompat-v7:24.2.0'
-    //compile 'com.android.support:appcompat-v7:15'
-    //
-    compileOnly files('build/se.cpacsystems.addon.jar')
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    compileOnly files('se.cpacsystems.addon.jar')
     implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     compile project(':sensorextensionlibrary')
 }
