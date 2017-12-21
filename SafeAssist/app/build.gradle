@@ -1,10 +1,9 @@
 apply plugin: 'com.android.application'
-
 android {
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "com.dva313.volvo.safeassist"
+        applicationId "softproduct.volvo.com.eco_drive"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
@@ -16,9 +15,57 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        handheld {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            dependencies {
+                compile 'com.google.android.gms:play-services-location:11.6.2'
+                implementation fileTree(dir: 'libs', include: ['*.jar'])
+                implementation 'com.android.support:appcompat-v7:26.1.0'
+                implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+                testImplementation 'junit:junit:4.12'
+                androidTestImplementation 'com.android.support.test:runner:1.0.1'
+                androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+                compile 'com.android.volley:volley:1.0.0'
+            }
+            signingConfigs {
+                config {
+                    keyAlias 'dva313'
+                    keyPassword 'dva313'
+                    storePassword 'dva313'
+                    storeFile file('C:/Users/Rickard/Documents/GitHub/DVA313VolvoCoPilot/Prototype/ourkey.jks')
+                }
+            }
+        }
+        copilot {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+            signingConfigs {
+                config {
+                    keyAlias 'theKey'
+                    keyPassword 'VCEKEY'
+                    storeFile file('C:/Users/Rickard/Google Drive/SE2_ CoPilot Safe Assist/Prototype/theKey.jks')
+                    storePassword 'VCEKEY'
+                }
+            }
+            dependencies {
+                compile 'com.google.android.gms:play-services-location:11.6.2'
+                implementation fileTree(dir: 'libs', include: ['*.jar'])
+                implementation 'com.android.support:appcompat-v7:26.1.0'
+                implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+                testImplementation 'junit:junit:4.12'
+                androidTestImplementation 'com.android.support.test:runner:1.0.1'
+                androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+                compile 'com.android.volley:volley:1.0.0'
+                compileOnly files('se.cpacsystems.addon.jar')
+                compile project(':sensorextensionlibrary')
+            }
+        }
     }
-}
 
+}
+/*
 dependencies {
     compile 'com.google.android.gms:play-services-location:11.6.2'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -29,3 +76,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     compile 'com.android.volley:volley:1.0.0'
 }
+*/
+
+
+
+

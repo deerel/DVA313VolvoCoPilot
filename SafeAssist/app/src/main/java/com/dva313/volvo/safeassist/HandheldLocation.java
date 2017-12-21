@@ -73,6 +73,7 @@ class HandheldLocation extends GeoLocation {
                     Toast.makeText(mContext, "Could not update the location to the Database", Toast.LENGTH_SHORT).show();
                     Toast.makeText(mContext, response, Toast.LENGTH_LONG).show();
                 }
+                Log.i("Location", response);
             }
         }, new Response.ErrorListener() {
             @Override

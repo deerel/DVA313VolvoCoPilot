@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -115,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     }else{
                         Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
+                        Log.i("LOGIN ERROR", response);
                     }
                 }
             }, new Response.ErrorListener() {
