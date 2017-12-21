@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,6 +13,10 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.volvo.softproduct.sensorextensionlibrary.db_enum.gnss_data;
+import com.volvo.softproduct.sensorextensionlibrary.db_value.float_value;
+import com.volvo.softproduct.sensorextensionlibrary.managers.gnss_manager;
+import com.volvo.softproduct.sensorextensionlibrary.managers.machine_manager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +36,16 @@ class CoPilotLocation extends GeoLocation {
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000; // Minimal duration, in milliseconds, needed to get an update
     private static final float LOCATION_DISTANCE = 0.0f; // Minimal distance, in meters, needed to get an update
+
+    //vriables CoPilot
+    private Handler mHandlerMachineData;
+    private Handler mHandlerGNSSData;
+    private gnss_manager mGnssDataManager;
+    private machine_manager mMachineDataManager;
+
+    private long startTime;
+    private long endTime;
+    private long lastCheck;
 
     /**
      * Constructor
@@ -155,6 +170,7 @@ class CoPilotLocation extends GeoLocation {
      * Start up the location manager to be able to listen for location data
      */
     private void initializeLocationManager() {
+        /*
         if (mLocationManager == null) {
             mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
@@ -178,6 +194,48 @@ class CoPilotLocation extends GeoLocation {
                 Log.d("Location", "network provider does not exist, " + ex.getMessage());
             }
         }
+        */
+        mHandlerMachineData = new Handler();
+        mHandlerGNSSData = new Handler();
+
+        mMachineDataManager = new machine_manager(mContext);
+        mGnssDataManager = new gnss_manager(mContext);
+
+        //In the project of rhe last year they used this for the function(updateTime)
+        //i do not htink that we needed
+        startTime = System.currentTimeMillis();
+        mHandlerMachineData = new Handler();
+        mMachineDataManager = new machine_manager(mContext);
+        if(mMachineDataManager.Connect() == true) {
+            mHandlerMachineData.post(runnableMachineData);
+        }
+    }
+
+    private Runnable runnableMachineData = new Runnable() {
+
+        @Override
+        public void run()
+        {
+            mHandlerMachineData.postDelayed(runnableMachineData, 500);
+
+            float_value Lat = mGnssDataManager.getFloatSignal(gnss_data.latitude.getCode());
+            float_value Long = mGnssDataManager.getFloatSignal(gnss_data.longitude.getCode());
+            //float_value valueAlt = mGnssDataManager.getFloatSignal(gnss_data.altitude.getCode());
+
+            mLocation.setLatitude(Lat.getValue());
+            mLocation.setLongitude(Long.getValue());
+
+            // unit_type.setText(String.format("Lat %.5f Long %.5f Altitude %.5f\n", dvaluelat.getValue(), dvaluelong.getValue(), dvaluealt.getValue()));
+            //In the project of rhe last year they used this function(updateTime)
+            //i do not htink that we needed
+            updateTime();
+        }
+    };
+
+
+    private void updateTime(){
+        lastCheck = endTime;
+        endTime = System.currentTimeMillis();
     }
 
     /**
