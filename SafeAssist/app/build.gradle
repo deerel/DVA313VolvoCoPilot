@@ -58,8 +58,8 @@ android {
                 androidTestImplementation 'com.android.support.test:runner:1.0.1'
                 androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
                 compile 'com.android.volley:volley:1.0.0'
-                compileOnly files('se.cpacsystems.addon.jar')
-                compile project(':sensorextensionlibrary')
+                //compileOnly files('se.cpacsystems.addon.jar')
+                //compile project(':sensorextensionlibrary')
             }
         }
     }
@@ -77,7 +77,8 @@ dependencies {
     compile 'com.android.volley:volley:1.0.0'
 }
 */
-
-
-
+dependencies {
+    copilotCompile project(':sensorextensionlibrary')
+    copilotCompileOnly files('se.cpacsystems.addon.jar')
+}
 
