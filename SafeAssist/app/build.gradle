@@ -14,14 +14,14 @@ android {
         config {
             keyAlias 'theKey'
             keyPassword 'VCEKEY'
-            storeFile file('C:/Users/Rickard/Google Drive/SE2_ CoPilot Safe Assist/Prototype/theKey.jks')
+            storeFile file('C:/Users/Dara/Documents/GitHub/DVA313VolvoCoPilot/SafeAssist/app/theKey.jks')
             storePassword 'VCEKEY'
         }
         HandHeldConfig {
             keyAlias 'dva313'
             keyPassword 'dva313'
             storePassword 'dva313'
-            storeFile file('C:/Users/Rickard/Documents/GitHub/DVA313VolvoCoPilot/Prototype/ourkey.jks')
+            storeFile file('C:/Users/Dara/Documents/GitHub/DVA313VolvoCoPilot/SafeAssist/app/ourkey.jks')
         }
     }
     buildTypes {
