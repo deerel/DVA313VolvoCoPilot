@@ -106,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                         //save the data in SharedPreferences so we later retrieve them for use
                         SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
                         editor.putString("username", username);
-                        editor.putString("unittype", "handheld");
+                        editor.putString("unittype", "copilot");
                         editor.apply();
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

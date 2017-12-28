@@ -13,13 +13,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.volvo.softproduct.sensorextensionlibrary.db_enum.gnss_data;
-import com.volvo.softproduct.sensorextensionlibrary.db_value.float_value;
-import com.volvo.softproduct.sensorextensionlibrary.managers.gnss_manager;
-import com.volvo.softproduct.sensorextensionlibrary.managers.machine_manager;
+
 
 import java.util.HashMap;
 import java.util.Map;
+
+import se.cpacsystems.common.Position;
+import se.cpacsystems.position.PositionManager;
 
 /**
  * CoPilot GPS Location service
@@ -32,20 +32,13 @@ import java.util.Map;
  */
 class CoPilotLocation extends GeoLocation {
 
-    private Location mLocation = null;
-    private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000; // Minimal duration, in milliseconds, needed to get an update
     private static final float LOCATION_DISTANCE = 0.0f; // Minimal distance, in meters, needed to get an update
 
-    //vriables CoPilot
-    private Handler mHandlerMachineData;
-    private Handler mHandlerGNSSData;
-    private gnss_manager mGnssDataManager;
-    private machine_manager mMachineDataManager;
+    private double mLat, mLon;
 
-    private long startTime;
-    private long endTime;
-    private long lastCheck;
+    private PositionManager _positionManager;
+    private boolean _positionConnected = false;
 
     /**
      * Constructor
@@ -55,11 +48,13 @@ class CoPilotLocation extends GeoLocation {
      */
     CoPilotLocation(RequestQueue requestQueue, Context context) {
         super(requestQueue, context);
-        //mAlarmRequestQueue = requestQueue;
-        //mContext = context;
-        //mWorkerId = workerId;
+        _positionManager = new PositionManager(mContext);
 
-        initializeLocationManager();
+        if(_positionConnected == false)
+        {
+            _positionManager.connect();
+            _positionConnected = true;
+        }
 
     }
 
@@ -68,15 +63,7 @@ class CoPilotLocation extends GeoLocation {
      */
     @Override
     void onDestroy() {
-        if (mLocationManager != null) {
-            for (int i = 0; i < mLocationListeners.length; i++) {
-                try {
-                    mLocationManager.removeUpdates(mLocationListeners[i]);
-                } catch (Exception ex) {
-                    Log.i("Location", "fail to remove location listners, ignore", ex);
-                }
-            }
-        }
+
     }
 
     /**
@@ -87,7 +74,9 @@ class CoPilotLocation extends GeoLocation {
     @Override
     void updateLocation(final String identifier) {
 
-        if(mLocation == null) return;
+        Position newPos = _positionManager.getPosition();
+        mLat = newPos.latitude;
+        mLon = newPos.longitude;
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
 
@@ -96,6 +85,8 @@ class CoPilotLocation extends GeoLocation {
                 if (!response.contains("Inserting gps location successful")) {
                     Toast.makeText(mContext, "Could not update the location to the Database", Toast.LENGTH_SHORT).show();
                     Toast.makeText(mContext, response, Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(mContext, "Lat: " + mLat + ", Lon: " + mLon, Toast.LENGTH_LONG).show();
                 }
             }
         }, new Response.ErrorListener() {
@@ -114,8 +105,8 @@ class CoPilotLocation extends GeoLocation {
                 params.put("worker_id", identifier);
                 params.put("action", "location");
                 //maybe not that good to convert the double values to string and reconvert them in the php, but for now it works
-                params.put("lat", String.valueOf(mLocation.getLatitude()));
-                params.put("lon", String.valueOf(mLocation.getLongitude()));
+                params.put("lat", String.valueOf(mLat));
+                params.put("lon", String.valueOf(mLon));
                 params.put("key", Constants.AUTH_KEY);
                 return params;
             }
@@ -124,138 +115,7 @@ class CoPilotLocation extends GeoLocation {
         mAlarmRequestQueue.add(postRequest);
     }
 
-    /**
-     * Listener for location data on the device
-     */
-    private class LocationListener implements android.location.LocationListener
-    {
-
-        public LocationListener(String provider)
-        {
-            mLocation = new Location(provider);
-        }
-
-        //everytime on a location update, meaning if the lat and long changes, this function will be called
-        @Override
-        public void onLocationChanged(final Location location) {
-            mLocation.set(location);
-            //gpstest();
-        }
-
-        @Override
-        public void onProviderDisabled(String provider)
-        {
-            //Log.e("Location", "onProviderDisabled: " + provider);
-        }
-
-        @Override
-        public void onProviderEnabled(String provider)
-        {
-            //Log.e("Location", "onProviderEnabled: " + provider);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-            //Log.e("Location", "onStatusChanged: " + provider);
-        }
-    }
-
-    private final LocationListener[] mLocationListeners = new LocationListener[] {
-            new LocationListener(LocationManager.GPS_PROVIDER),
-            new LocationListener(LocationManager.NETWORK_PROVIDER)
-    };
-
-    /**
-     * Start up the location manager to be able to listen for location data
-     */
-    private void initializeLocationManager() {
-        /*
-        if (mLocationManager == null) {
-            mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-
-            try {
-                mLocationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
-                        mLocationListeners[0]);
-            } catch (SecurityException ex) {
-                Log.i("Location", "fail to request location update, ignore", ex);
-            } catch (IllegalArgumentException ex) {
-                Log.d("Location", "gps provider does not exist " + ex.getMessage());
-            }
-
-            try {
-                mLocationManager.requestLocationUpdates(
-                        LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
-                        mLocationListeners[1]);
-            } catch (SecurityException ex) {
-                Log.i("Location", "fail to request location update, ignore", ex);
-            } catch (IllegalArgumentException ex) {
-                Log.d("Location", "network provider does not exist, " + ex.getMessage());
-            }
-        }
-        */
-        mHandlerMachineData = new Handler();
-        mHandlerGNSSData = new Handler();
-
-        mMachineDataManager = new machine_manager(mContext);
-        mGnssDataManager = new gnss_manager(mContext);
-
-        //In the project of rhe last year they used this for the function(updateTime)
-        //i do not htink that we needed
-        startTime = System.currentTimeMillis();
-        mHandlerMachineData = new Handler();
-        mMachineDataManager = new machine_manager(mContext);
-        if(mMachineDataManager.Connect() == true) {
-            mHandlerMachineData.post(runnableMachineData);
-        }
-    }
-
-    private Runnable runnableMachineData = new Runnable() {
-
-        @Override
-        public void run()
-        {
-            mHandlerMachineData.postDelayed(runnableMachineData, 500);
-
-            float_value Lat = mGnssDataManager.getFloatSignal(gnss_data.latitude.getCode());
-            float_value Long = mGnssDataManager.getFloatSignal(gnss_data.longitude.getCode());
-            //float_value valueAlt = mGnssDataManager.getFloatSignal(gnss_data.altitude.getCode());
-
-            mLocation.setLatitude(Lat.getValue());
-            mLocation.setLongitude(Long.getValue());
-
-            // unit_type.setText(String.format("Lat %.5f Long %.5f Altitude %.5f\n", dvaluelat.getValue(), dvaluelong.getValue(), dvaluealt.getValue()));
-            //In the project of rhe last year they used this function(updateTime)
-            //i do not htink that we needed
-            updateTime();
-        }
-    };
 
 
-    private void updateTime(){
-        lastCheck = endTime;
-        endTime = System.currentTimeMillis();
-    }
-
-    /**
-     * Set the update interval for location listener.
-     *
-     * @param minTime       Minimum time in millis between updates.
-     * @param minDistance   Minimum distanse in meters between updates.
-     */
-    public void setLocationUpdateInterval(int minTime, int minDistance) {
-
-        try {
-            mLocationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, minTime, minDistance,
-                    mLocationListeners[0]);
-        } catch (SecurityException ex) {
-            Log.i("Location", "fail to request location update, ignore", ex);
-        } catch (IllegalArgumentException ex) {
-            Log.d("Location", "gps provider does not exist " + ex.getMessage());
-        }
-
-    }
 
 }
