@@ -86,7 +86,7 @@ class CoPilotLocation extends GeoLocation {
                     Toast.makeText(mContext, "Could not update the location to the Database", Toast.LENGTH_SHORT).show();
                     Toast.makeText(mContext, response, Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(mContext, "Lat: " + mLat + ", Lon: " + mLon, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(mContext, "Lat: " + mLat + ", Lon: " + mLon, Toast.LENGTH_LONG).show();
                 }
             }
         }, new Response.ErrorListener() {
@@ -103,7 +103,7 @@ class CoPilotLocation extends GeoLocation {
                 Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("worker_id", identifier);
-                params.put("action", "location");
+                params.put("action", "copilotLocation");
                 //maybe not that good to convert the double values to string and reconvert them in the php, but for now it works
                 params.put("lat", String.valueOf(mLat));
                 params.put("lon", String.valueOf(mLon));

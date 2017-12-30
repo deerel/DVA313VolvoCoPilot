@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         mUsername = preferences.getString("username", null);
 
         String unittype = preferences.getString("unittype", null);
-        Log.i("MainActivity", "Unittype: " + unittype);
+        //Log.i("MainActivity", "Unittype: " + unittype);
         if(unittype.equals("handheld"))
             mUnit = new Unit(UnitType.HANDHELD);
         else if(unittype.equals("copilot"))

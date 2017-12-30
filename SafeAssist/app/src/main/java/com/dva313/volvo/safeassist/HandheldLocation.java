@@ -73,14 +73,14 @@ class HandheldLocation extends GeoLocation {
                     Toast.makeText(mContext, "Could not update the location to the Database", Toast.LENGTH_SHORT).show();
                     Toast.makeText(mContext, response, Toast.LENGTH_LONG).show();
                 }
-                Log.i("Location", response);
+               // Log.i("Location", response);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //error.printStackTrace();
 
-                //Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "Could not insert the data.", Toast.LENGTH_SHORT).show();
             }
         }
         ) {
@@ -89,7 +89,7 @@ class HandheldLocation extends GeoLocation {
                 Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("worker_id", identifier);
-                params.put("action", "location");
+                params.put("action", "workerLocation");
                 //maybe not that good to convert the double values to string and reconvert them in the php, but for now it works
                 params.put("lat", String.valueOf(mLocation.getLatitude()));
                 params.put("lon", String.valueOf(mLocation.getLongitude()));

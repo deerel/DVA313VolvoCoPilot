@@ -41,16 +41,34 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.login_layout);
 
-        //check if worker is already inlogged
+        //to get the workers data and see if they are logged in, and also insert the type of buildConfig type
         SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
-        Boolean is_inlogged = preferences.getBoolean("is_inlogged", false);
+        Boolean isInlogged = preferences.getBoolean("is_inlogged", false);
+
         /* User should login every time, until that is changed the following code is disabled */
-        /*if(is_inlogged){
+        if(isInlogged){
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             //to kill the first page activity
             finish();
-        }*/
+        }
+
+        SharedPreferences.Editor editor = preferences.edit();
+
+        if(BuildConfig.BUILD_TYPE.contains("copilot")){
+            editor.putString("unittype", "copilot");
+            editor.apply();
+            //Toast.makeText(getApplicationContext(), "copilot", Toast.LENGTH_LONG).show();
+
+        }else if(BuildConfig.BUILD_TYPE.contains("handheld")){
+            editor.putString("unittype", "handheld");
+            editor.apply();
+            //Toast.makeText(getApplicationContext(), "handheld", Toast.LENGTH_LONG).show();
+        }else {
+            editor.putString("unittype", "unknown");
+            editor.apply();
+            Toast.makeText(getApplicationContext(), "ERROR: Could not get the application type.", Toast.LENGTH_LONG).show();
+        }
 
         //get each edittext component to later save the text string inside them into vars
         mUsername = findViewById(R.id.editTextUsername);
@@ -107,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
                         editor.putString("username", username);
                         editor.putString("unittype", "copilot");
+                        editor.putBoolean("is_inlogged", true);
                         editor.apply();
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
