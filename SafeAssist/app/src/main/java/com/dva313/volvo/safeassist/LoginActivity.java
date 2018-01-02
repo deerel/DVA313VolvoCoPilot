@@ -113,54 +113,115 @@ public class LoginActivity extends AppCompatActivity {
 
             final String user_id = username+"_"+password;
 
-            //sending in the request to php as a POST
-            StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
+            SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
+            String unittype = preferences.getString("unittype", null);
 
-                @Override//the response from php is received here
-                public void onResponse(String response) {
+            if(unittype == "copilot"){
 
-                    //if the worker was inserted newly or it already existed in the DB
-                    if(response.contains("Inserting successful")){
-                        //save the data in SharedPreferences so we later retrieve them for use
-                        SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
-                        editor.putString("username", username);
-                        editor.putString("unittype", "copilot");
-                        editor.putBoolean("is_inlogged", true);
-                        editor.apply();
+                //sending in the request to php as a POST
+                StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
 
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        //to kill the first page activity
-                        finish();
+                    @Override//the response from php is received here
+                    public void onResponse(String response) {
 
-                    }else{
-                        Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                        Log.i("LOGIN ERROR", response);
+                        //if the worker was inserted newly or it already existed in the DB
+                        if(response.contains("Inserting successful")){
+                            //save the data in SharedPreferences so we later retrieve them for use
+                            SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
+                            editor.putString("username", username);
+                            //editor.putString("unittype", "copilot");
+                            editor.putBoolean("is_inlogged", true);
+                            editor.apply();
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            //to kill the first page activity
+                            finish();
+
+                        }else if(response.contains("Could not insert the new worker")){
+                            Toast.makeText(getApplicationContext(), "Could not insert the new worker", Toast.LENGTH_SHORT).show();
+                        }else if(response.contains("No worker with that username was found")){
+                            Toast.makeText(getApplicationContext(), "No worker with that username was found", Toast.LENGTH_SHORT).show();
+                        }else{
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //error.printStackTrace();
+                        Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    //error.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+                ) {
+                    @Override
+                    protected Map<String, String> getParams()
+                    {
+                        Map<String, String>  params = new HashMap<>();
+                        // the POST parameters:
+                        params.put("action", "copilotLogin");
+                        params.put("worker_id", username);
+                        params.put("password", password);
+                        params.put("key", Constants.AUTH_KEY);
+                        return params;
+                    }
+                };
+
+                Volley.newRequestQueue(this).add(postRequest);
+
+
+            }else{
+
+                //sending in the request to php as a POST
+                StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
+
+                    @Override//the response from php is received here
+                    public void onResponse(String response) {
+
+                        //if the worker was inserted newly or it already existed in the DB
+                        if(response.contains("Inserting successful")){
+                            //save the data in SharedPreferences so we later retrieve them for use
+                            SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
+                            editor.putString("username", username);
+                            //editor.putString("unittype", "copilot");
+                            editor.putBoolean("is_inlogged", true);
+                            editor.apply();
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            //to kill the first page activity
+                            finish();
+
+                        }else{
+                            Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
+                            //Log.i("LOGIN ERROR", response);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //error.printStackTrace();
+                        Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+                    }
                 }
+                ) {
+                    @Override
+                    protected Map<String, String> getParams()
+                    {
+                        Map<String, String>  params = new HashMap<>();
+                        // the POST parameters:
+                        params.put("action", "workerLogin");
+                        params.put("worker_id", username);
+                        params.put("password", password);
+                        params.put("key", Constants.AUTH_KEY);
+                        return params;
+                    }
+                };
+
+                Volley.newRequestQueue(this).add(postRequest);
+
+
             }
-            ) {
-                @Override
-                protected Map<String, String> getParams()
-                {
-                    Map<String, String>  params = new HashMap<>();
-                    // the POST parameters:
-                    params.put("action", "login");
-                    params.put("worker_id", username);
-                    params.put("password", password);
-                    params.put("key", Constants.AUTH_KEY);
-                    return params;
-                }
-            };
-
-            Volley.newRequestQueue(this).add(postRequest);
-
         }
     }
 
