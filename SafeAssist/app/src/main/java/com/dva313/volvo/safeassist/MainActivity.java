@@ -29,6 +29,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -131,25 +141,88 @@ public class MainActivity extends AppCompatActivity {
     /* Custom Action bar end */
 
     public void logout() {
-        // Shut down foreground service
-        finishAlarmService();
-        Intent stopIntent = new Intent(this, ServerComService.class);
-        stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
-        startService(stopIntent);
 
-        SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
-        editor.putBoolean("is_inlogged", false);
-        editor.apply();
 
-        unbindService(serviceConnection);
-        mIsBind = false;
-        //mMessenger = null;
-        mIsForeground = false;
+        SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
+        //String username = preferences.getString("username", null);
+        String unittype = preferences.getString("unittype", null);
 
-        //start the first page
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
+
+        if(unittype == "copilot"){
+            StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
+
+                @Override//the response from php is received here
+                public void onResponse(String response) {
+
+                    if(response.contains("Removing successful")){
+                        // Shut down foreground service
+                        finishAlarmService();
+                        Intent stopIntent = new Intent(getApplicationContext(), ServerComService.class);
+                        stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
+                        startService(stopIntent);
+
+                        SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
+                        editor.putBoolean("is_inlogged", false);
+                        editor.apply();
+
+                        unbindService(serviceConnection);
+                        mIsBind = false;
+                        //mMessenger = null;
+                        mIsForeground = false;
+
+                        //start the first page
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Could not remove the association.", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //error.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+                }
+            }
+            ) {
+                @Override
+                protected Map<String, String> getParams()
+                {
+                    Map<String, String>  params = new HashMap<>();
+                    // the POST parameters:
+                    params.put("action", "removeAssoc");
+                    params.put("worker_id", mUsername);
+                    //params.put("password", password);
+                    params.put("key", Constants.AUTH_KEY);
+                    return params;
+                }
+            };
+
+            Volley.newRequestQueue(this).add(postRequest);
+
+        }else{
+            // Shut down foreground service
+            finishAlarmService();
+            Intent stopIntent = new Intent(this, ServerComService.class);
+            stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
+            startService(stopIntent);
+
+            SharedPreferences.Editor editor = getSharedPreferences("workers_data", MODE_PRIVATE).edit();
+            editor.putBoolean("is_inlogged", false);
+            editor.apply();
+
+            unbindService(serviceConnection);
+            mIsBind = false;
+            //mMessenger = null;
+            mIsForeground = false;
+
+            //start the first page
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void setStatus() {
