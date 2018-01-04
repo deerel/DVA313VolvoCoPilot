@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         String unittype = preferences.getString("unittype", null);
 
 
-        if(unittype == "copilot"){
+        if(unittype.equals("copilot")){
             StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
 
                 @Override//the response from php is received here
