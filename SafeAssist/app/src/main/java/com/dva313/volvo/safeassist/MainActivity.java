@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
     private void setStatus() {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mTextStatus.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorDarkText, null));
-        Log.i("AlarmLevel", "lvl:" + mAlertLevel);
+
         switch (mAlertLevel) {
             case Constants.ALARM_NO_RESPONSE:
                 mTextStatus.setText(R.string.no_signal);
