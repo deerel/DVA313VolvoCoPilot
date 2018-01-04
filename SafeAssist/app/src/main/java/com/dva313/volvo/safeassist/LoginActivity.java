@@ -46,12 +46,12 @@ public class LoginActivity extends AppCompatActivity {
         Boolean isInlogged = preferences.getBoolean("is_inlogged", false);
 
         /* User should login every time, until that is changed the following code is disabled */
-        if(isInlogged){
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            //to kill the first page activity
-            finish();
-        }
+//        if(isInlogged){
+//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//            startActivity(intent);
+//            //to kill the first page activity
+//            finish();
+//        }
 
         SharedPreferences.Editor editor = preferences.edit();
 

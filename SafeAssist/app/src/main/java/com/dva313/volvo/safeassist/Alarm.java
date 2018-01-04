@@ -60,7 +60,7 @@ class Alarm {
         SharedPreferences preferences = mContext.getSharedPreferences("workers_data", MODE_PRIVATE);
         String unittype = preferences.getString("unittype", null);
 
-        if(unittype == "copilot"){
+        if(unittype.equals("copilot")){
 
             /* Setting up a resuest to a specific URL. */
             StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {

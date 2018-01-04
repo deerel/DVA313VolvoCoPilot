@@ -18,8 +18,8 @@ import com.android.volley.toolbox.StringRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-import se.cpacsystems.common.Position;
-import se.cpacsystems.position.PositionManager;
+//import se.cpacsystems.common.Position;
+//import se.cpacsystems.position.PositionManager;
 
 /**
  * CoPilot GPS Location service
@@ -32,13 +32,14 @@ import se.cpacsystems.position.PositionManager;
  */
 class CoPilotLocation extends GeoLocation {
 
+
     private static final int LOCATION_INTERVAL = 1000; // Minimal duration, in milliseconds, needed to get an update
     private static final float LOCATION_DISTANCE = 0.0f; // Minimal distance, in meters, needed to get an update
 
     private double mLat, mLon;
 
-    private PositionManager _positionManager;
-    private boolean _positionConnected = false;
+//    private PositionManager _positionManager;
+//    private boolean _positionConnected = false;
 
     /**
      * Constructor
@@ -48,13 +49,13 @@ class CoPilotLocation extends GeoLocation {
      */
     CoPilotLocation(RequestQueue requestQueue, Context context) {
         super(requestQueue, context);
-        _positionManager = new PositionManager(mContext);
-
-        if(_positionConnected == false)
-        {
-            _positionManager.connect();
-            _positionConnected = true;
-        }
+//        _positionManager = new PositionManager(mContext);
+//
+//        if(_positionConnected == false)
+//        {
+//            _positionManager.connect();
+//            _positionConnected = true;
+//        }
 
     }
 
@@ -74,9 +75,9 @@ class CoPilotLocation extends GeoLocation {
     @Override
     void updateLocation(final String identifier) {
 
-        Position newPos = _positionManager.getPosition();
-        mLat = newPos.latitude;
-        mLon = newPos.longitude;
+//        Position newPos = _positionManager.getPosition();
+//        mLat = newPos.latitude;
+//        mLon = newPos.longitude;
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
 
