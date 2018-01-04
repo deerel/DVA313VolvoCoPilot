@@ -71,6 +71,7 @@ class Alarm {
                     try {
                         mReturnValue = Integer.parseInt(response.toString());
                         caller.callback(mReturnValue, null);
+                        Toast.makeText(mContext, response, Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Log.e("AlarmServie: ", e.getMessage());
                     }

@@ -116,7 +116,9 @@ public class LoginActivity extends AppCompatActivity {
             SharedPreferences preferences = getSharedPreferences("workers_data", MODE_PRIVATE);
             String unittype = preferences.getString("unittype", null);
 
-            if(unittype == "copilot"){
+            Toast.makeText(getApplicationContext(), unittype, Toast.LENGTH_SHORT).show();
+
+            if(unittype.equals("copilot")){
 
                 //sending in the request to php as a POST
                 StringRequest postRequest = new StringRequest(Request.Method.POST, Constants.SERVICE_URL, new Response.Listener<String>() {
@@ -150,7 +152,9 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         //error.printStackTrace();
-                        Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
                 ) {
@@ -201,7 +205,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         //error.printStackTrace();
-                        Toast.makeText(getApplicationContext(), "Could not insert the data.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Could not insert the data, hh.", Toast.LENGTH_SHORT).show();
                     }
                 }
                 ) {
