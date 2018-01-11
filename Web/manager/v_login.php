@@ -1,3 +1,8 @@
+
+      <?php
+      session_start();
+      require '_database/database.php'; ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -106,7 +111,7 @@
   </div>
 
   <div class = "instructorform">
-    <form method="POST" action="components/login-process-man.php" enctype="multipart/form-data" >
+    <form action="components/login-process-man.php" enctype="multipart/form-data" method="POST">
       <p>
         <div class="boxtransparent" >
           <p>
@@ -135,16 +140,13 @@
     </div>
 
 
-      <?php
-      session_start();
-      require '_database/database.php';
-
+<?php 
       if(isset($_SESSION['username'])){
         if(isset($_SESSION['lloji'])){
           if($_SESSION['lloji']==1)
-            header("location: SIDORELA.php");
+            header("location: ../admin/index1.php");
           else if($_SESSION['lloji']==2)
-             header("location: v_index.html");
+             header("location: v_index.php");
 
 
         }

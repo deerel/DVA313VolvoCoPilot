@@ -9,7 +9,7 @@ if(isset($_POST['submit'])||$_REQUEST['auto']==1)
     $username = trim($_POST['username']);
     $password =  trim($_POST['password']);
     
-    $sql="SELECT ID,username,password FROM studentdb WHERE username='$username'AND password='$password'";
+    $sql="SELECT id,name,password FROM dva313 WHERE name='$username'AND password='$password'";
     
     
     $result =  mysqli_query($conn, $sql) or die(mysqli_errno());
@@ -17,11 +17,11 @@ if(isset($_POST['submit'])||$_REQUEST['auto']==1)
 
     if($rws==1){
         $rws =  mysqli_fetch_array($result);
-        $_SESSION['username']=$rws['username'];
+        $_SESSION['username']=$rws['name'];
         $_SESSION['password']=$rws['password'];
-        $_SESSION['id'] = $rws['ID'];
+        $_SESSION['id'] = $rws['id'];
         $_SESSION['lloji'] = 1;
-        header("location:../home.php");    
+        header("location:../admin/index1.php");    
     
     }
     else { 
@@ -30,7 +30,7 @@ if(isset($_POST['submit'])||$_REQUEST['auto']==1)
         if($errflag) {
             $_SESSION['ERRMSG_ARR'] = $errmsg_arr;
             session_write_close();
-            header("location:../components/authentication-check.php ");
+            header("location: https://www.volvo.se ");
             exit();
         }
     }
