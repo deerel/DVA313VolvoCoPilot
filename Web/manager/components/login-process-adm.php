@@ -1,38 +1,54 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set("display_errors","On");
+
 session_start();
-if(isset($_POST['submit'])||$_REQUEST['auto']==1)
+
+if(isset($_POST['submit']))
+    // ||$_REQUEST['auto']==1)
 {
 
-    require '../_database/database.php';
+    include '../_database/database.php';
     $errmsg_arr = array();
+
     $username = trim($_POST['username']);
     $password =  trim($_POST['password']);
     
-    $sql="SELECT id,name,password FROM dva313 WHERE name='$username'AND password='$password'";
+    $sql="SELECT id,name,password,role  FROM Worker WHERE name='$username' AND password='$password'";
+    $prova = 0;
     
     
-    $result =  mysqli_query($conn, $sql) or die(mysqli_errno());
+    $result =  mysqli_query($conn, $sql) or die(mysqli_error($conn));
     $rws= mysqli_num_rows($result);
-
+ 
     if($rws==1){
+        // if($rws['role']==="MANAGER"){
         $rws =  mysqli_fetch_array($result);
-        $_SESSION['username']=$rws['name'];
-        $_SESSION['password']=$rws['password'];
-        $_SESSION['id'] = $rws['id'];
-        $_SESSION['lloji'] = 1;
-        header("location:../admin/index1.php");    
-    
+        $_SESSION['username']=$rws['name']; 
+        $_SESSION['password']=$rws['password']; 
+        $_SESSION['id'] = $rws['id']; 
+        $_SESSION['lloji'] = 2; 
+        header("location:../../admin/index1.php");
+            // ?name=$username&request=login&status=success"); 
     }
-    else { 
-        $errmsg_arr[] = 'user name and password not found';
-        $errflag = true;
-        if($errflag) {
-            $_SESSION['ERRMSG_ARR'] = $errmsg_arr;
-            session_write_close();
-            header("location: https://www.volvo.se ");
-            exit();
-        }
+    else{
+        echo("error:" .mysqli_connect_errno()." dhe pastaj kemi: " .$prova );
+    } 
+
+}
+else { 
+
+    $errmsg_arr[] = 'user name and password not found';
+    $errflag = true;
+    if($errflag) {
+        $_SESSION['ERRMSG_ARR'] = $errmsg_arr;
+        session_write_close();
+        header("location:https://www.volvo.com/home.html");
+        exit();
+
     }
 }
+
+
 ?>

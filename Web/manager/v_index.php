@@ -58,13 +58,13 @@ include_once('includes/header.php');
 
             <ul class="nav">
                 <li class="active">
-                    <a href="v_index.html">
+                    <a href="v_index.php">
                         <i class="pe-7s-graph"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
 				<li >
-                    <a href="v_list.html">
+                    <a href="v_list.php">
                         <i class="pe-7s-graph"></i>
                         <p>List of Construction Sites</p>
                     </a>
@@ -118,7 +118,7 @@ include_once('includes/header.php');
 
                     <ul class="nav navbar-nav navbar-right">
                         <li>
-                            <a href="#">
+                            <a href="v_logout.php">
                                 <p>Log out</p>
                             </a>
                         </li>						
